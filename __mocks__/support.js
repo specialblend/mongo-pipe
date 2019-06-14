@@ -29,3 +29,6 @@ afterAll(() => {
     console.warn = warn;
     console.error = error;
 });
+
+export const __EMPTY__ = ['', {}, []];
+export const __NIL__ = [null, undefined];

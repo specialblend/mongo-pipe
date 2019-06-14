@@ -1,7 +1,5 @@
 import * as R from 'ramda';
-import assert from '@specialblend/assert';
-
-import { buildSpec, isEmptyOrNil, memoizeAll } from './common';
+import { buildSpec, memoizeAll, validateClient, validateCollectionName } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
@@ -22,8 +20,8 @@ const nativeSpec = buildSpec(nativeSpecMethods);
  * @params {string} name Mongo collection name
  */
 const connect = R.curryN(2, memoizeAll(function connect(client, name) {
-    assert(!isEmptyOrNil(client), 'Mongo client cannot be empty or nil');
-    assert(!isEmptyOrNil(name), 'Mongo collection name cannot be empty or nil');
+    validateClient(client);
+    validateCollectionName(name);
     return client.collection(name);
 }));
 
