@@ -10,11 +10,11 @@ const client = __MONGO_CLIENT__;
 
 const collectionName = 'test.collection';
 
-describe('transformed collection', () => {
+describe('transformed factory', () => {
     const id = 'test.id.awsercdtvybunimop';
     const generateId = R.always(id);
     const setId = R.set(R.lensProp('id'));
-    const injectId = R.converge(setId, [generateId, R.identity]);
+    const injectId = props => setId(generateId(), props);
 
     const withUniqueID = transform(withCollection, {
         insertOne: handler => R.pipe(injectId, handler),
