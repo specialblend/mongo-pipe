@@ -11,6 +11,26 @@ import { isEmptyOrNil } from './common';
 const constructTransformer = spec => R.evolve(R.map(R.curryN(2, R.pipe), spec));
 
 /**
+ * Validate transform target
+ * @param {function} target target
+ * @returns {void}
+ */
+const validateTarget = function validateTarget(target) {
+    assert(!isEmptyOrNil(target), '`target` cannot be empty or nil');
+    assert(typeof target === 'function', '`target` must be function');
+};
+
+/**
+ * Validate transformerSpec
+ * @param {object} transformerSpec spec
+ * @returns {void}
+ */
+const validateTransformerSpec = function validateTransformerSpec(transformerSpec) {
+    assert(!isEmptyOrNil(transformerSpec), '`transformerSpec` cannot be empty or nil');
+    assert(typeof transformerSpec === 'object', '`transformerSpec` must be object');
+};
+
+/**
  * Takes a mongo-pipe constructor and
  * returns a transformed mongo-pipe constructor
  * according to provided spec
@@ -19,10 +39,8 @@ const constructTransformer = spec => R.evolve(R.map(R.curryN(2, R.pipe), spec));
  * @returns {Function|*} transformed mongo-pipe constructor
  */
 const transform = function transform(target, transformerSpec) {
-    assert(!isEmptyOrNil(target), 'transform target cannot be empty or nil');
-    assert(!isEmptyOrNil(transformerSpec), 'transformerSpec target cannot be empty or nil');
-    assert(typeof target === 'function', 'transform target must be a function');
-    assert(typeof transformerSpec === 'object', 'transformerSpec must be an object');
+    validateTarget(target);
+    validateTransformerSpec(transformerSpec);
     return R.pipeP(
         target,
         constructTransformer(transformerSpec),
