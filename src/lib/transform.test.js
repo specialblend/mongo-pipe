@@ -23,6 +23,7 @@ describe('transformed collection', () => {
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
     });
+
     describe('when called', () => {
         let collection = null;
         beforeAll(async() => {
