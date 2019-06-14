@@ -1,18 +1,66 @@
 import * as R from 'ramda';
-import { buildSpec, isEmptyOrNil, memoizeAll } from './common';
 import assert from '@specialblend/assert';
+import { isEmptyOrNil, memoizeAll } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
  * @type {*[]}
  */
-const nativeSpecMethods = ['insertOne', 'findOne'];
+export const nativeSpecMethods = [
+    'aggregate',
+    'bulkWrite',
+    'count',
+    'countDocuments',
+    'createIndex',
+    'createIndexes',
+    'deleteMany',
+    'deleteOne',
+    'distinct',
+    'drop',
+    'dropAllIndexes',
+    'dropIndex',
+    'dropIndexes',
+    'ensureIndex',
+    'estimatedDocumentCount',
+    'find',
+    'findAndModify',
+    'findAndRemove',
+    'findOne',
+    'findOneAndDelete',
+    'findOneAndReplace',
+    'findOneAndUpdate',
+    'geoHaystackSearch',
+    'group',
+    'indexes',
+    'indexExists',
+    'indexInformation',
+    'initializeOrderedBulkOp',
+    'initializeUnorderedBulkOp',
+    'insert',
+    'insertMany',
+    'insertOne',
+    'isCapped',
+    'listIndexes',
+    'mapReduce',
+    'options',
+    'parallelCollectionScan',
+    'reIndex',
+    'remove',
+    'rename',
+    'replaceOne',
+    'save',
+    'stats',
+    'update',
+    'updateMany',
+    'updateOne',
+    'watch',
+];
 
 /**
  * Native Mongo spec
  * @type {object}
  */
-const nativeSpec = buildSpec(nativeSpecMethods);
+// const nativeSpec = buildSpec(nativeSpecMethods);
 
 /**
  * Validate Mongo client
@@ -52,7 +100,7 @@ const connect = R.curryN(2, memoizeAll(function connect(client, name) {
  * Constructs a mongo-pipe collection from a native Mongo connection
  * @type {function}
  */
-const construct = R.applySpec(nativeSpec);
+// const construct = R.applySpec(nativeSpec);
 
 /**
  * Connects to Mongo and
@@ -61,6 +109,6 @@ const construct = R.applySpec(nativeSpec);
  * @param {Client} client native Mongo client
  * @params {string} name Mongo collection name
  */
-const withCollection = R.pipeP(connect, construct);
+const withCollection = connect;
 
 export default withCollection;

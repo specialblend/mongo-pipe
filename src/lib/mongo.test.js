@@ -1,11 +1,11 @@
 import * as R from 'ramda';
 
 import withCollection from './mongo';
-import { __generateClient__, __generateNativeDriver__ } from '../../__mocks__/driver';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
+import { __MONGO_CLIENT__, __MONGO_DRIVER__, MongoCollection } from '../../__mocks__/driver';
 
-const nativeDriver = __generateNativeDriver__();
-const client = __generateClient__();
+const driver = __MONGO_DRIVER__;
+const client = __MONGO_CLIENT__;
 
 const collectionName = 'test.collection';
 
@@ -18,11 +18,11 @@ describe('withCollection', () => {
         beforeAll(async() => {
             collection = await withCollection(client, collectionName);
         });
-        test('returns object with expected methods', () => {
-            expect(collection).toBeObject();
+        test('returns instance of MongoCollection', () => {
+            expect(collection).toBeInstanceOf(MongoCollection);
         });
         describe('class methods', () => {
-            describe.each(R.keys(nativeDriver))('%p', method => {
+            describe.each(R.keys(driver))('%p', method => {
                 test('is a function', () => {
                     expect(collection).toHaveProperty(method, expect.any(Function));
                 });
@@ -30,7 +30,7 @@ describe('withCollection', () => {
                     const payload = Symbol(`collection.${method}.payload`);
                     const props = { payload };
                     await collection[method](props);
-                    expect(R.prop(method, nativeDriver)).toHaveBeenCalledWith({ payload });
+                    expect(R.prop(method, driver)).toHaveBeenCalledWith({ payload });
                 });
             });
         });
