@@ -18,7 +18,7 @@ class NativeCollection {
 }
 
 const client = {
-    collection: jest.fn(() => new NativeCollection),
+    collection: jest.fn(async() => new NativeCollection),
 };
 
 const collectionName = 'test.collection';
@@ -28,7 +28,10 @@ describe('withCollection', () => {
         expect(withCollection).toBeFunction();
     });
     describe('when called', () => {
-        const collection = withCollection(client, collectionName);
+        let collection = null;
+        beforeAll(async() => {
+            collection = await withCollection(client, collectionName);
+        });
         test('returns object with expected methods', () => {
             expect(collection).toBeObject();
         });
@@ -58,7 +61,10 @@ describe('transformed collection', () => {
         expect(withUniqueID).toBeFunction();
     });
     describe('when called', () => {
-        const collection = withUniqueID(client, collectionName);
+        let collection = null;
+        beforeAll(async() => {
+            collection = await withUniqueID(client, collectionName);
+        });
         test('returns object with expected methods', () => {
             expect(collection).toBeObject();
         });

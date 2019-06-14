@@ -40,6 +40,6 @@ export const construct = R.applySpec(nativeSpec);
  * @param {Client} client native Mongo client
  * @params {string} name Mongo collection name
  */
-const withCollection = R.pipe(connect, construct);
+const withCollection = R.pipeP(connect, construct);
 
 export default withCollection;
