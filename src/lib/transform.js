@@ -6,7 +6,7 @@ import * as R from 'ramda';
  * @param {object} spec transformed spec
  * @returns {function} transformed spec
  */
-const transformSpec = spec => R.evolve(R.map(R.curryN(2, R.pipe), spec));
+const constructTransformer = spec => R.evolve(R.map(R.curryN(2, R.pipe), spec));
 
 /**
  * Takes a mongo-pipe constructor and
@@ -17,9 +17,9 @@ const transformSpec = spec => R.evolve(R.map(R.curryN(2, R.pipe), spec));
  * @returns {Function|*} transformed mongo-pipe constructor
  */
 const transformCollection = (target, transformerSpec) =>
-    R.pipe(
+    R.pipeP(
         target,
-        transformSpec(transformerSpec),
+        constructTransformer(transformerSpec),
     );
 
 export default transformCollection;
