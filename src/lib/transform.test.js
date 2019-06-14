@@ -2,23 +2,28 @@ import * as R from 'ramda';
 
 import withCollection from './mongo';
 import transform from './transform';
-import { __generateClient__, __generateNativeDriver__ } from '../../__mocks__/driver';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
+import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__ } from '../../__mocks__/driver';
 
-const nativeDriver = __generateNativeDriver__();
-const client = __generateClient__();
+const driver = __MONGO_DRIVER__;
+const client = __MONGO_CLIENT__;
 
 const collectionName = 'test.collection';
 
-describe('transformed collection', () => {
+describe('transformed factory', () => {
     const id = 'test.id.awsercdtvybunimop';
     const generateId = R.always(id);
     const setId = R.set(R.lensProp('id'));
-    const injectId = R.converge(setId, [generateId, R.identity]);
-    const withUniqueID = transform(withCollection, { insertOne: injectId });
+    const injectId = props => setId(generateId(), props);
+
+    const withUniqueID = transform(withCollection, {
+        insertOne: handler => R.pipe(injectId, handler),
+    });
+
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
     });
+
     describe('when called', () => {
         let collection = null;
         beforeAll(async() => {
@@ -28,9 +33,14 @@ describe('transformed collection', () => {
             expect(collection).toBeObject();
         });
         describe('class methods', () => {
-            describe.each(R.keys(nativeDriver))('%p', method => {
+            describe.each(R.keys(driver))('%p', method => {
                 test('is a function', () => {
-                    expect(collection).toHaveProperty(method, expect.any(Function));
+                    expect(collection[method]).toBeFunction();
+                });
+                test('has correct binding reference', async() => {
+                    const { ref } = await collection[method]();
+                    expect(ref).toBeFunction();
+                    expect(ref()).toBe(__REF__);
                 });
             });
             describe('insertOne', () => {
@@ -38,7 +48,7 @@ describe('transformed collection', () => {
                     const payload = Symbol('collection.insertOne.payload');
                     const props = { payload };
                     await collection.insertOne(props);
-                    expect(nativeDriver.insertOne).toHaveBeenCalledWith({ id, payload });
+                    expect(driver.insertOne).toHaveBeenCalledWith({ id, payload });
                 });
             });
         });

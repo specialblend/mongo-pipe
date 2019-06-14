@@ -13,13 +13,6 @@ export const memoizeAll = R.memoizeWith(R.unapply(R.identity));
 export const isEmptyOrNil = R.either(R.isEmpty, R.isNil);
 
 /**
- * Bind method to constructed spec
- * @type {function}
+ * Bind function to provided object
  */
-export const bindMethod = R.converge(R.bind, [R.prop(R.__), R.identity]);
-
-/**
- * Construct collection spec from a list of underlying method names
- * @type {function}
- */
-export const buildSpec = R.converge(R.zipObj, [R.identity, R.map(bindMethod)]);
+export const bindTo = R.flip(R.bind);
