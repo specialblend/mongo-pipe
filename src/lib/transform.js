@@ -23,7 +23,7 @@ const transform = function transform(target, transformerSpec) {
     assert(!isEmptyOrNil(transformerSpec), 'transformerSpec target cannot be empty or nil');
     assert(typeof target === 'function', 'transform target must be a function');
     assert(typeof transformerSpec === 'object', 'transformerSpec must be an object');
-    return R.pipe(
+    return R.pipeP(
         target,
         constructTransformer(transformerSpec),
     );
