@@ -7,6 +7,12 @@ import * as R from 'ramda';
 export const memoizeAll = R.memoizeWith(R.unapply(R.identity));
 
 /**
+ * Returns true if expression is empty or nil (null or undefined)
+ * @type {function}
+ */
+export const isEmptyOrNil = R.either(R.isEmpty, R.isNil);
+
+/**
  * Bind method to constructed spec
  * @type {function}
  */

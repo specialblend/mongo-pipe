@@ -1,4 +1,4 @@
 import withCollection from './lib/mongo';
-import transformCollection from './lib/transform';
+import transform from './lib/transform';
 
-export default { withCollection, transformCollection };
+export default { withCollection, transform };

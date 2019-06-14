@@ -4,7 +4,7 @@ const moduleUMD = require('./dist/index.umd');
 
 const expectedExport = {
     withCollection: expect.any(Function),
-    transformCollection: expect.any(Function),
+    transform: expect.any(Function),
 };
 
 test('exports are importable', () => {

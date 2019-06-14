@@ -1,17 +1,19 @@
 import * as R from 'ramda';
-import { buildSpec, memoizeAll } from './common';
+import assert from '@specialblend/assert';
+
+import { buildSpec, isEmptyOrNil, memoizeAll } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
  * @type {*[]}
  */
-export const nativeSpecMethods = ['insertOne', 'findOne'];
+const nativeSpecMethods = ['insertOne', 'findOne'];
 
 /**
  * Native Mongo spec
  * @type {object}
  */
-export const nativeSpec = buildSpec(nativeSpecMethods);
+const nativeSpec = buildSpec(nativeSpecMethods);
 
 /**
  * Returns a memoized native Mongo collection
@@ -19,7 +21,11 @@ export const nativeSpec = buildSpec(nativeSpecMethods);
  * @param {Client} client native Mongo client
  * @params {string} name Mongo collection name
  */
-export const connect = R.curryN(2, memoizeAll((client, name) => client.collection(name)));
+const connect = R.curryN(2, memoizeAll(function connect(client, name) {
+    assert(!isEmptyOrNil(client), 'Mongo client cannot be empty or nil');
+    assert(!isEmptyOrNil(name), 'Mongo collection name cannot be empty or nil');
+    return client.collection(name);
+}));
 
 /**
  * Constructs a mongo-pipe collection from a native Mongo connection

@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 import withCollection from './lib/mongo';
-import transformCollection from './lib/transform';
+import transform from './lib/transform';
 
 const nativeDriver = {
     insertOne: jest.fn(),
@@ -53,7 +53,7 @@ describe('transformed collection', () => {
     const generateId = R.always(id);
     const setId = R.set(R.lensProp('id'));
     const injectId = R.converge(setId, [generateId, R.identity]);
-    const withUniqueID = transformCollection(withCollection, { insertOne: injectId });
+    const withUniqueID = transform(withCollection, { insertOne: injectId });
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
     });

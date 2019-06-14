@@ -50,6 +50,7 @@
     "rollup": "^1.15.3"
   },
   "dependencies": {
+    "@specialblend/assert": "0.0.2",
     "ramda": "^0.26.1"
   }
 }
