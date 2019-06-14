@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@specialblend/assert": "0.0.2",
+    "moment": "^2.24.0",
     "ramda": "^0.26.1"
   }
 }
