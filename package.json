@@ -1,7 +1,6 @@
 {
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
+  "main": "dist/main.cjs.js",
+  "module": "dist/main.esm.js",
   "version": "0.0.1",
   "scripts": {
     "test": "jest",
