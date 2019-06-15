@@ -54,7 +54,7 @@ const transform = curry(function transform(transformerSpec, target, methods = na
     validateTransformerSpec(transformerSpec);
     return pipe(
         target,
-        then(collection => constructTransformer(transformerSpec, methods, collection)),
+        then(constructTransformer(transformerSpec, methods)),
     );
 });
 
