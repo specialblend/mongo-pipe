@@ -1,8 +1,15 @@
+import moment from 'moment';
+import { keys } from 'ramda';
 import withCollection from '../lib/mongo';
 import { withTimestamps } from './timestamps';
-import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
-import { keys } from 'ramda';
-import moment from 'moment';
+import {
+    MongoCollection,
+    __MONGO_CLIENT__,
+    __MONGO_DRIVER__,
+    __REF__,
+} from '../../__mocks__/driver';
+
+const collectionName = 'test.collection.erxtcyvucxtfcygtuvhibuu234756789';
 
 describe('withTimestamps', () => {
     test('is a function', () => {
@@ -16,7 +23,7 @@ describe('withTimestamps', () => {
         describe('when called', () => {
             let collection = null;
             beforeAll(async() => {
-                collection = await factory(__MONGO_CLIENT__, 'test.collection');
+                collection = await factory(__MONGO_CLIENT__, collectionName);
             });
             test('returns a Mongo collection', () => {
                 expect(collection).toBeInstanceOf(MongoCollection);
@@ -54,6 +61,19 @@ describe('withTimestamps', () => {
                     const props = { payload };
                     await collection.updateOne(props);
                     expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({ updatedAt, payload });
+                });
+            });
+            describe('bubbles expected error', () => {
+                test('on rejected native driver call', async() => {
+                    expect.assertions(1);
+                    const payload = 'exrtcyvubinomp,[.';
+                    const expectedErr = new Error('qawsedrftgyuiokyutjre');
+                    __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
+                    try {
+                        await collection.insertOne(payload);
+                    } catch (err) {
+                        expect(err).toBe(expectedErr);
+                    }
                 });
             });
         });

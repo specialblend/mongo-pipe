@@ -1,10 +1,10 @@
-import * as R from 'ramda';
+import { binary, compose, curry, is, has } from 'ramda';
 import assert from '@specialblend/assert';
 import { isEmptyOrNil, memoizeAll } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
- * @type {*[]}
+ * @type {[string]}
  */
 export const nativeSpecMethods = [
     'aggregate',
@@ -57,20 +57,14 @@ export const nativeSpecMethods = [
 ];
 
 /**
- * Native Mongo spec
- * @type {object}
- */
-// const nativeSpec = buildSpec(nativeSpecMethods);
-
-/**
  * Validate Mongo client
  * @param {Client} client Mongo client
  * @returns {void}
  */
 const validateClient = function validateClient(client) {
     assert(!isEmptyOrNil(client), '`client` cannot be empty or nil');
-    assert(R.is(Object, client), '`client` must be object');
-    assert(R.has('collection', client), '`client` must have property `collection`');
+    assert(is(Object, client), '`client` must be object');
+    assert(has('collection', client), '`client` must have property `collection`');
     assert(typeof client.collection === 'function', '`client.collection` must be function');
 };
 
@@ -81,34 +75,28 @@ const validateClient = function validateClient(client) {
  */
 const validateCollectionName = function validateCollectionName(name) {
     assert(!isEmptyOrNil(name), 'collection `name` cannot be empty or nil');
-    assert(R.is(String, name), 'collection `name` must be string');
+    assert(is(String, name), 'collection `name` must be string');
 };
 
 /**
- * Returns a memoized native Mongo collection
+ * Returns a native Mongo collection
  * @type {function}
  * @param {Client} client native Mongo client
- * @params {string} name Mongo collection name
+ * @param {string} name Mongo collection name
+ * @returns {MongoCollection} Mongo collection
  */
-const connect = R.curryN(2, memoizeAll(function connect(client, name) {
+export const connect = function connect(client, name) {
     validateClient(client);
     validateCollectionName(name);
     return client.collection(name);
-}));
+};
 
 /**
- * Constructs a mongo-pipe collection from a native Mongo connection
- * @type {function}
- */
-// const construct = R.applySpec(nativeSpec);
-
-/**
- * Connects to Mongo and
- * resolves to a mongo-pipe collection
+ * Curried, memoized mongo-pipe constructor
  * @type {function}
  * @param {Client} client native Mongo client
  * @params {string} name Mongo collection name
  */
-const withCollection = connect;
+const withCollection = compose(curry, binary, memoizeAll)(connect);
 
 export default withCollection;

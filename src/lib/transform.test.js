@@ -1,20 +1,25 @@
-import * as R from 'ramda';
-
+import { always, keys, lensProp, pipe, set } from 'ramda';
 import withCollection from './mongo';
 import transform from './transform';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
-import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
+import {
+    __MONGO_CLIENT__,
+    __MONGO_CLIENT_ERR__,
+    __MONGO_DRIVER__,
+    __REF__,
+    MongoCollection,
+} from '../../__mocks__/driver';
 
-const collectionName = 'test.collection';
+const collectionName = 'test.collection.werxstcyvubinomp';
 
 describe('transformed factory', () => {
     const id = 'test.id.awsercdtvybunimop';
-    const generateId = R.always(id);
-    const setId = R.set(R.lensProp('id'));
+    const generateId = always(id);
+    const setId = set(lensProp('id'));
     const injectId = props => setId(generateId(), props);
 
     const withUniqueID = transform({
-        insertOne: handler => R.pipe(injectId, handler),
+        insertOne: handler => pipe(injectId, handler),
     }, withCollection);
 
     test('is a function', () => {
@@ -31,7 +36,7 @@ describe('transformed factory', () => {
                 expect(collection).toBeInstanceOf(MongoCollection);
             });
             describe('extends native collection', () => {
-                describe.each(R.keys(__MONGO_DRIVER__))('%p', method => {
+                describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                     test('is a function', () => {
                         expect(collection[method]).toBeFunction();
                     });
@@ -75,6 +80,28 @@ describe('transformed factory', () => {
                         expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` must be object/);
                     });
                 });
+            });
+        });
+        describe('bubbles expected error', () => {
+            test('on rejected client.collection', async() => {
+                expect.assertions(1);
+                __MONGO_CLIENT__.collection.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
+                try {
+                    await withUniqueID(__MONGO_CLIENT__, '__test_collection_qawsedrftgyhujikolp__');
+                } catch (err) {
+                    expect(err).toBe(__MONGO_CLIENT_ERR__);
+                }
+            });
+            test('on rejected native driver call', async() => {
+                expect.assertions(1);
+                const payload = 'exrtcyvubinomp,[.';
+                const expectedErr = new Error('lioukyjnhtbgrvefc');
+                __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
+                try {
+                    await collection.insertOne(payload);
+                } catch (err) {
+                    expect(err).toBe(expectedErr);
+                }
             });
         });
     });
