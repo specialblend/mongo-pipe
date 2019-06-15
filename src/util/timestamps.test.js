@@ -3,7 +3,6 @@ import { keys } from 'ramda';
 import withCollection from '../lib/mongo';
 import { withTimestamps } from './timestamps';
 import {
-    MongoCollection,
     __MONGO_CLIENT__,
     __MONGO_DRIVER__,
     __REF__,

@@ -7,7 +7,6 @@ import {
     __MONGO_CLIENT_ERR__,
     __MONGO_DRIVER__,
     __REF__,
-    MongoCollection,
 } from '../../__mocks__/driver';
 
 const collectionName = 'test.collection.werxstcyvubinomp';
