@@ -1,15 +1,16 @@
 import withCollection from '../lib/mongo';
-import withTimestamps from './timestamps';
+import { withTimestamps } from './timestamps';
 import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
-import * as R from 'ramda';
+import { keys } from 'ramda';
+import moment from 'moment';
 
 describe('withTimestamps', () => {
     test('is a function', () => {
         expect(withTimestamps).toBeFunction();
     });
-    describe('when called', () => {
+    describe('factory', () => {
         const factory = withTimestamps(withCollection);
-        test('returns a function', () => {
+        test('is a function', () => {
             expect(factory).toBeFunction();
         });
         describe('when called', () => {
@@ -25,7 +26,7 @@ describe('withTimestamps', () => {
                     expect(collection).toBeInstanceOf(MongoCollection);
                 });
                 describe('extends native collection', () => {
-                    describe.each(R.keys(__MONGO_DRIVER__))('%p', method => {
+                    describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                         test('is a function', () => {
                             expect(collection[method]).toBeFunction();
                         });
@@ -35,6 +36,24 @@ describe('withTimestamps', () => {
                             expect(ref()).toBe(__REF__);
                         });
                     });
+                });
+            });
+            describe('insertOne', () => {
+                test('injects createdAt field', async() => {
+                    const createdAt = expect.any(moment);
+                    const payload = Symbol('collection.insertOne.payload');
+                    const props = { payload };
+                    await collection.insertOne(props);
+                    expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({ createdAt, payload });
+                });
+            });
+            describe('updateOne', () => {
+                test('injects updatedAt field', async() => {
+                    const updatedAt = expect.any(moment);
+                    const payload = Symbol('collection.insertOne.payload');
+                    const props = { payload };
+                    await collection.updateOne(props);
+                    expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({ updatedAt, payload });
                 });
             });
         });
