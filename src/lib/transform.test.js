@@ -7,7 +7,6 @@ import {
     __MONGO_CLIENT_ERR__,
     __MONGO_DRIVER__,
     __REF__,
-    MongoCollection,
 } from '../../__mocks__/driver';
 
 const collectionName = 'test.collection.werxstcyvubinomp';
@@ -32,9 +31,6 @@ describe('transformed factory', () => {
             collection = await withUniqueID(__MONGO_CLIENT__, collectionName);
         });
         describe('collection', () => {
-            test('is a MongoCollection', () => {
-                expect(collection).toBeInstanceOf(MongoCollection);
-            });
             describe('extends native collection', () => {
                 describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                     test('is a function', () => {
