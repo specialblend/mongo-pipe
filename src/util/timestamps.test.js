@@ -25,13 +25,7 @@ describe('withTimestamps', () => {
             beforeAll(async() => {
                 collection = await factory(__MONGO_CLIENT__, collectionName);
             });
-            test('returns a Mongo collection', () => {
-                expect(collection).toBeInstanceOf(MongoCollection);
-            });
             describe('collection', () => {
-                test('is a MongoCollection', () => {
-                    expect(collection).toBeInstanceOf(MongoCollection);
-                });
                 describe('extends native collection', () => {
                     describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                         test('is a function', () => {

@@ -32,9 +32,6 @@ describe('transformed factory', () => {
             collection = await withUniqueID(__MONGO_CLIENT__, collectionName);
         });
         describe('collection', () => {
-            test('is a MongoCollection', () => {
-                expect(collection).toBeInstanceOf(MongoCollection);
-            });
             describe('extends native collection', () => {
                 describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                     test('is a function', () => {

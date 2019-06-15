@@ -1,4 +1,4 @@
-import { compose, converge, curry, evolve, identity, map, pick, pipe, then } from 'ramda';
+import { clone, compose, converge, curry, evolve, identity, map, pick, pipe, then } from 'ramda';
 import assert from '@specialblend/assert';
 import { nativeSpecMethods } from './mongo';
 import { bindTo, isEmptyOrNil } from './common';
@@ -13,14 +13,11 @@ import { bindTo, isEmptyOrNil } from './common';
  */
 const constructTransformer = curry(
     (spec, methods, collection) =>
-        converge(Object.assign, [
-            identity,
-            compose(
-                map(bindTo(collection)),
-                evolve(spec),
-                pick(methods),
-            ),
-        ])(collection)
+        compose(
+            map(bindTo(collection)),
+            evolve(spec),
+            pick(methods),
+        )(collection)
 );
 
 /**
