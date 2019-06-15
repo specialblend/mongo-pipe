@@ -1,5 +1,4 @@
-import * as R from 'ramda';
-
+import { always, keys, lensProp, pipe, set } from 'ramda';
 import withCollection from './mongo';
 import transform from './transform';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
@@ -11,16 +10,16 @@ import {
     MongoCollection,
 } from '../../__mocks__/driver';
 
-const collectionName = 'test.collection';
+const collectionName = 'test.collection.werxstcyvubinomp';
 
 describe('transformed factory', () => {
     const id = 'test.id.awsercdtvybunimop';
-    const generateId = R.always(id);
-    const setId = R.set(R.lensProp('id'));
+    const generateId = always(id);
+    const setId = set(lensProp('id'));
     const injectId = props => setId(generateId(), props);
 
     const withUniqueID = transform({
-        insertOne: handler => R.pipe(injectId, handler),
+        insertOne: handler => pipe(injectId, handler),
     }, withCollection);
 
     test('is a function', () => {
@@ -37,7 +36,7 @@ describe('transformed factory', () => {
                 expect(collection).toBeInstanceOf(MongoCollection);
             });
             describe('extends native collection', () => {
-                describe.each(R.keys(__MONGO_DRIVER__))('%p', method => {
+                describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                     test('is a function', () => {
                         expect(collection[method]).toBeFunction();
                     });

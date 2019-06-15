@@ -1,10 +1,16 @@
-import * as R from 'ramda';
+import { keys, prop } from 'ramda';
 
-import withCollection from './mongo';
+import withCollection, { connect } from './mongo';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
 import { MongoCollection, __MONGO_CLIENT__, __MONGO_DRIVER__, __MONGO_CLIENT_ERR__ } from '../../__mocks__/driver';
 
-const collectionName = 'test.collection';
+const collectionName = 'test.collection.uikjmynhtbgrfdves';
+
+describe('connect', () => {
+    test('is a function', () => {
+        expect(connect).toBeFunction();
+    });
+});
 
 describe('withCollection', () => {
     test('is a function', () => {
@@ -19,7 +25,7 @@ describe('withCollection', () => {
             expect(collection).toBeInstanceOf(MongoCollection);
         });
         describe('class methods', () => {
-            describe.each(R.keys(__MONGO_DRIVER__))('%p', method => {
+            describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                 test('is a function', () => {
                     expect(collection).toHaveProperty(method, expect.any(Function));
                 });
@@ -27,7 +33,7 @@ describe('withCollection', () => {
                     const payload = Symbol(`collection.${method}.payload`);
                     const props = { payload };
                     await collection[method](props);
-                    expect(R.prop(method, __MONGO_DRIVER__)).toHaveBeenCalledWith({ payload });
+                    expect(prop(method, __MONGO_DRIVER__)).toHaveBeenCalledWith({ payload });
                 });
             });
         });
@@ -89,7 +95,9 @@ describe('withCollection', () => {
         });
         test('memoizes correctly', async() => {
             const secondCollection = await withCollection(__MONGO_CLIENT__, collectionName);
+            const differentCollection = await withCollection(__MONGO_CLIENT__, 'kfdsgukfdsguifsagiufdsugi2345e6r7ttcysvh');
             expect(secondCollection).toBe(collection);
+            expect(differentCollection).not.toBe(collection);
         });
         test('is curried', async() => {
             const createThirdCollection = withCollection(__MONGO_CLIENT__);

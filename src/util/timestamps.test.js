@@ -9,6 +9,8 @@ import {
     __REF__,
 } from '../../__mocks__/driver';
 
+const collectionName = 'test.collection.erxtcyvucxtfcygtuvhibuu234756789';
+
 describe('withTimestamps', () => {
     test('is a function', () => {
         expect(withTimestamps).toBeFunction();
@@ -21,7 +23,7 @@ describe('withTimestamps', () => {
         describe('when called', () => {
             let collection = null;
             beforeAll(async() => {
-                collection = await factory(__MONGO_CLIENT__, 'test.collection');
+                collection = await factory(__MONGO_CLIENT__, collectionName);
             });
             test('returns a Mongo collection', () => {
                 expect(collection).toBeInstanceOf(MongoCollection);
