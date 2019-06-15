@@ -1,14 +1,13 @@
+import moment from 'moment';
+import { keys } from 'ramda';
 import withCollection from '../lib/mongo';
 import { withTimestamps } from './timestamps';
 import {
+    MongoCollection,
     __MONGO_CLIENT__,
-    __MONGO_CLIENT_ERR__,
     __MONGO_DRIVER__,
     __REF__,
-    MongoCollection
 } from '../../__mocks__/driver';
-import { keys } from 'ramda';
-import moment from 'moment';
 
 describe('withTimestamps', () => {
     test('is a function', () => {
