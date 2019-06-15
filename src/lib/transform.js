@@ -1,4 +1,4 @@
-import { clone, compose, converge, curry, evolve, identity, map, pick, pipe, then } from 'ramda';
+import { compose, curry, evolve, map, pick, pipe, then } from 'ramda';
 import assert from '@specialblend/assert';
 import { nativeSpecMethods } from './mongo';
 import { bindTo, isEmptyOrNil } from './common';
