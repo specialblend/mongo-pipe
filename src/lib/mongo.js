@@ -90,11 +90,11 @@ const validateCollectionName = function validateCollectionName(name) {
  * @param {Client} client native Mongo client
  * @params {string} name Mongo collection name
  */
-const connect = R.curryN(2, function connect(client, name) {
+const connect = R.curry(R.binary(memoizeAll(function connect(client, name) {
     validateClient(client);
     validateCollectionName(name);
     return client.collection(name);
-});
+})));
 
 /**
  * Constructs a mongo-pipe collection from a native Mongo connection
