@@ -1,6 +1,12 @@
 import withCollection from '../lib/mongo';
 import { withTimestamps } from './timestamps';
-import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
+import {
+    __MONGO_CLIENT__,
+    __MONGO_CLIENT_ERR__,
+    __MONGO_DRIVER__,
+    __REF__,
+    MongoCollection
+} from '../../__mocks__/driver';
 import { keys } from 'ramda';
 import moment from 'moment';
 
@@ -54,6 +60,19 @@ describe('withTimestamps', () => {
                     const props = { payload };
                     await collection.updateOne(props);
                     expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({ updatedAt, payload });
+                });
+            });
+            describe('bubbles expected error', () => {
+                test('on rejected native driver call', async() => {
+                    expect.assertions(1);
+                    const payload = 'exrtcyvubinomp,[.';
+                    const expectedErr = new Error('qawsedrftgyuiokyutjre');
+                    __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
+                    try {
+                        await collection.insertOne(payload);
+                    } catch (err) {
+                        expect(err).toBe(expectedErr);
+                    }
                 });
             });
         });

@@ -3,7 +3,13 @@ import * as R from 'ramda';
 import withCollection from './mongo';
 import transform from './transform';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
-import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
+import {
+    __MONGO_CLIENT__,
+    __MONGO_CLIENT_ERR__,
+    __MONGO_DRIVER__,
+    __REF__,
+    MongoCollection,
+} from '../../__mocks__/driver';
 
 const collectionName = 'test.collection';
 
@@ -75,6 +81,28 @@ describe('transformed factory', () => {
                         expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` must be object/);
                     });
                 });
+            });
+        });
+        describe('bubbles expected error', () => {
+            test('on rejected client.collection', async() => {
+                expect.assertions(1);
+                __MONGO_CLIENT__.collection.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
+                try {
+                    await withUniqueID(__MONGO_CLIENT__, '__test_collection_qawsedrftgyhujikolp__');
+                } catch (err) {
+                    expect(err).toBe(__MONGO_CLIENT_ERR__);
+                }
+            });
+            test('on rejected native driver call', async() => {
+                expect.assertions(1);
+                const payload = 'exrtcyvubinomp,[.';
+                const expectedErr = new Error('lioukyjnhtbgrvefc');
+                __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
+                try {
+                    await collection.insertOne(payload);
+                } catch (err) {
+                    expect(err).toBe(expectedErr);
+                }
             });
         });
     });
