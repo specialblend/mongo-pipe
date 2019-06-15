@@ -87,5 +87,14 @@ describe('withCollection', () => {
                 }
             });
         });
+        test('memoizes correctly', async() => {
+            const secondCollection = await withCollection(__MONGO_CLIENT__, collectionName);
+            expect(secondCollection).toBe(collection);
+        });
+        test('is curried', async() => {
+            const createThirdCollection = withCollection(__MONGO_CLIENT__);
+            const thirdCollection = await createThirdCollection(collectionName);
+            expect(thirdCollection).toBe(collection);
+        });
     });
 });
