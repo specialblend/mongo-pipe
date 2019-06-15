@@ -3,10 +3,7 @@ import * as R from 'ramda';
 import withCollection from './mongo';
 import transform from './transform';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
-import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__ } from '../../__mocks__/driver';
-
-const driver = __MONGO_DRIVER__;
-const client = __MONGO_CLIENT__;
+import { __MONGO_CLIENT__, __MONGO_DRIVER__, __REF__, MongoCollection } from '../../__mocks__/driver';
 
 const collectionName = 'test.collection';
 
@@ -16,9 +13,9 @@ describe('transformed factory', () => {
     const setId = R.set(R.lensProp('id'));
     const injectId = props => setId(generateId(), props);
 
-    const withUniqueID = transform(withCollection, {
+    const withUniqueID = transform({
         insertOne: handler => R.pipe(injectId, handler),
-    });
+    }, withCollection);
 
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
@@ -27,53 +24,55 @@ describe('transformed factory', () => {
     describe('when called', () => {
         let collection = null;
         beforeAll(async() => {
-            collection = await withUniqueID(client, collectionName);
+            collection = await withUniqueID(__MONGO_CLIENT__, collectionName);
         });
-        test('returns object with expected methods', () => {
-            expect(collection).toBeObject();
-        });
-        describe('class methods', () => {
-            describe.each(R.keys(driver))('%p', method => {
-                test('is a function', () => {
-                    expect(collection[method]).toBeFunction();
-                });
-                test('has correct binding reference', async() => {
-                    const { ref } = await collection[method]();
-                    expect(ref).toBeFunction();
-                    expect(ref()).toBe(__REF__);
+        describe('collection', () => {
+            test('is a MongoCollection', () => {
+                expect(collection).toBeInstanceOf(MongoCollection);
+            });
+            describe('extends native collection', () => {
+                describe.each(R.keys(__MONGO_DRIVER__))('%p', method => {
+                    test('is a function', () => {
+                        expect(collection[method]).toBeFunction();
+                    });
+                    test('has correct binding reference', async() => {
+                        const { ref } = await collection[method]();
+                        expect(ref).toBeFunction();
+                        expect(ref()).toBe(__REF__);
+                    });
                 });
             });
-            describe('insertOne', () => {
-                test('calls native insertOne with expected parameters', async() => {
-                    const payload = Symbol('collection.insertOne.payload');
-                    const props = { payload };
-                    await collection.insertOne(props);
-                    expect(driver.insertOne).toHaveBeenCalledWith({ id, payload });
-                });
+        });
+        describe('insertOne', () => {
+            test('calls native insertOne with expected parameters', async() => {
+                const payload = Symbol('collection.insertOne.payload');
+                const props = { payload };
+                await collection.insertOne(props);
+                expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({ id, payload });
             });
         });
         describe('throws expected assertion error', () => {
             describe('when target', () => {
                 describe('is empty or nil', () => {
                     test.each([...__EMPTY__, ...__NIL__])('when target is %p', target => {
-                        expect(() => transform(target, null)).toThrow(/`target` cannot be empty or nil/);
+                        expect(() => transform(null, target)).toThrow(/`target` cannot be empty or nil/);
                     });
                 });
                 describe('is not a function', () => {
                     test.each([true, false, 12.34, 'test-wexsrctvybunimop,', Symbol('test-ioukjyhtgrfed')])('target=%p', target => {
-                        expect(() => transform(target, null)).toThrow(/`target` must be function/);
+                        expect(() => transform(null, target)).toThrow(/`target` must be function/);
                     });
                 });
             });
             describe('when transformerSpec', () => {
                 describe('is empty or nil', () => {
                     test.each([...__EMPTY__, ...__NIL__])('transformerSpec=%p', transformerSpec => {
-                        expect(() => transform(() => {}, transformerSpec)).toThrow(/`transformerSpec` cannot be empty or nil/);
+                        expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` cannot be empty or nil/);
                     });
                 });
                 describe('is not an object', () => {
                     test.each([true, false, 12.34, 'test-awsetgyuko,', Symbol('test-ioukjyhtgrfed'), () => {}])('transformerSpec=%p', transformerSpec => {
-                        expect(() => transform(() => {}, transformerSpec)).toThrow(/`transformerSpec` must be object/);
+                        expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` must be object/);
                     });
                 });
             });

@@ -1,7 +1,6 @@
 {
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
+  "main": "dist/main.cjs.js",
+  "module": "dist/main.esm.js",
   "version": "0.0.1",
   "scripts": {
     "test": "jest",
@@ -51,6 +50,7 @@
   },
   "dependencies": {
     "@specialblend/assert": "0.0.2",
+    "moment": "^2.24.0",
     "ramda": "^0.26.1"
   }
 }
