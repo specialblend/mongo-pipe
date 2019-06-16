@@ -16,10 +16,10 @@ describe('transformed factory', () => {
     const generateId = always(id);
     const setId = set(lensProp('id'));
     const injectId = props => setId(generateId(), props);
-
-    const withUniqueID = transform({
+    const testSpec = {
         insertOne: handler => pipe(injectId, handler),
-    }, withCollection);
+    };
+    const withUniqueID = transform(testSpec, withCollection);
 
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
@@ -56,24 +56,24 @@ describe('transformed factory', () => {
             describe('when target', () => {
                 describe('is empty or nil', () => {
                     test.each([...__EMPTY__, ...__NIL__])('when target is %p', target => {
-                        expect(() => transform(null, target)).toThrow(/`target` cannot be empty or nil/);
+                        expect(() => transform(testSpec, target)).toThrow(/`target` cannot be empty or nil/);
                     });
                 });
                 describe('is not a function', () => {
                     test.each([true, false, 12.34, 'test-wexsrctvybunimop,', Symbol('test-ioukjyhtgrfed')])('target=%p', target => {
-                        expect(() => transform(null, target)).toThrow(/`target` must be function/);
+                        expect(() => transform(testSpec, target)).toThrow(/`target` must be function/);
                     });
                 });
             });
             describe('when transformerSpec', () => {
                 describe('is empty or nil', () => {
-                    test.each([...__EMPTY__, ...__NIL__])('transformerSpec=%p', transformerSpec => {
-                        expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` cannot be empty or nil/);
+                    test.each([...__EMPTY__, ...__NIL__])('spec=%p', spec => {
+                        expect(() => transform(spec, () => {})).toThrow(/`spec` cannot be empty or nil/);
                     });
                 });
                 describe('is not an object', () => {
-                    test.each([true, false, 12.34, 'test-awsetgyuko,', Symbol('test-ioukjyhtgrfed'), () => {}])('transformerSpec=%p', transformerSpec => {
-                        expect(() => transform(transformerSpec, () => {})).toThrow(/`transformerSpec` must be object/);
+                    test.each([true, false, 12.34, 'test-awsetgyuko,', Symbol('test-ioukjyhtgrfed'), () => {}])('spec=%p', spec => {
+                        expect(() => transform(spec, () => {})).toThrow(/`spec` must be object/);
                     });
                 });
             });

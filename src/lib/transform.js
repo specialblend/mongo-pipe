@@ -1,4 +1,4 @@
-import { curry, evolve, pipe, then } from 'ramda';
+import { __, compose, converge, curry, evolve, identity, juxt, pipe, then, useWith } from 'ramda';
 import assert from '@specialblend/assert';
 import { isEmptyOrNil } from './common';
 
@@ -17,27 +17,27 @@ const validateTarget = function validateTarget(target) {
  * @param {object} transformerSpec spec
  * @returns {void}
  */
-const validateTransformerSpec = function validateTransformerSpec(transformerSpec) {
-    assert(!isEmptyOrNil(transformerSpec), '`transformerSpec` cannot be empty or nil');
-    assert(typeof transformerSpec === 'object', '`transformerSpec` must be object');
+const validateSpec = function validateSpec(transformerSpec) {
+    assert(!isEmptyOrNil(transformerSpec), '`spec` cannot be empty or nil');
+    assert(typeof transformerSpec === 'object', '`spec` must be object');
 };
+
+const validateTransform = (spec, target) => {
+    validateSpec(spec);
+    validateTarget(target);
+};
+
+const transform = curry(function transform(spec, target) {
+    validateTransform(spec, target);
+    return pipe(target, then(evolve(spec)));
+});
 
 /**
  * Takes a mongo-pipe constructor and
  * returns a transformed mongo-pipe constructor
  * according to provided spec
+ * @param {object} spec transformer spec
  * @param {function} target mongo-pipe constructor
- * @param {object} transformerSpec transformer spec
- * @param {[string]} methods list of methods to bind
  * @returns {Function|*} transformed mongo-pipe constructor
  */
-const transform = curry(function transform(transformerSpec, target) {
-    validateTarget(target);
-    validateTransformerSpec(transformerSpec);
-    return pipe(
-        target,
-        then(evolve(transformerSpec)),
-    );
-});
-
 export default transform;
