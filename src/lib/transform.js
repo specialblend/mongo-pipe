@@ -1,61 +1,30 @@
-import { compose, curry, evolve, map, pick, pipe, then } from 'ramda';
-import assert from '@specialblend/assert';
-import { nativeSpecMethods } from './mongo';
-import { bindTo, isEmptyOrNil } from './common';
+import { compose, evolve, identity, map, pipe, then, useWith } from 'ramda';
+import { pipeAfter, pipeBefore } from './common';
+import withCollection from './mongo';
+
+const map2 = compose(map, map);
+const before = map2(pipeBefore);
+const after = map2(pipeAfter);
+const mapPipeline = pipeline => pipe(...map(evolve, pipeline));
+const usePipeline = compose(then, mapPipeline);
+const useFactory = identity;
+const transform = useWith(compose, [usePipeline, useFactory]);
 
 /**
- * Builds a transformer spec
- * @type {function}
- * @param {object} spec transformed spec
- * @param {[string]} methods methods
- * @param {MongoCollection} collection collection
- * @returns {function} transformed spec
+ * extend target constructor
+ * and apply pipeline of spec transformations
+ * @param {[object]} pipeline list of transformer spec objects to apply
+ * @param {function} target collection constructor to extend
+ * @returns {function} transformed factory
  */
-const constructTransformer = curry(
-    (spec, methods, collection) =>
-        compose(
-            map(bindTo(collection)),
-            evolve(spec),
-            pick(methods),
-        )(collection)
-);
+export function transformSpec(pipeline, target = withCollection) {
+    return transform(pipeline, target);
+}
 
-/**
- * Validate transform target
- * @param {function} target target
- * @returns {void}
- */
-const validateTarget = function validateTarget(target) {
-    assert(!isEmptyOrNil(target), '`target` cannot be empty or nil');
-    assert(typeof target === 'function', '`target` must be function');
-};
+export function pipeSpec(pipeline, target) {
+    return transformSpec(before(pipeline), target);
+}
 
-/**
- * Validate transformerSpec
- * @param {object} transformerSpec spec
- * @returns {void}
- */
-const validateTransformerSpec = function validateTransformerSpec(transformerSpec) {
-    assert(!isEmptyOrNil(transformerSpec), '`transformerSpec` cannot be empty or nil');
-    assert(typeof transformerSpec === 'object', '`transformerSpec` must be object');
-};
-
-/**
- * Takes a mongo-pipe constructor and
- * returns a transformed mongo-pipe constructor
- * according to provided spec
- * @param {function} target mongo-pipe constructor
- * @param {object} transformerSpec transformer spec
- * @param {[string]} methods list of methods to bind
- * @returns {Function|*} transformed mongo-pipe constructor
- */
-const transform = curry(function transform(transformerSpec, target, methods = nativeSpecMethods) {
-    validateTarget(target);
-    validateTransformerSpec(transformerSpec);
-    return pipe(
-        target,
-        then(constructTransformer(transformerSpec, methods)),
-    );
-});
-
-export default transform;
+export function composeSpec(pipeline, target) {
+    return transformSpec(after(pipeline), target);
+}

@@ -2,7 +2,7 @@ import { keys, prop } from 'ramda';
 
 import withCollection, { connect } from './mongo';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
-import { MongoCollection, __MONGO_CLIENT__, __MONGO_DRIVER__, __MONGO_CLIENT_ERR__ } from '../../__mocks__/driver';
+import { __MONGO_CLIENT__, __MONGO_DRIVER__, __MONGO_CLIENT_ERR__ } from '../../__mocks__/driver';
 
 const collectionName = 'test.collection.uikjmynhtbgrfdves';
 
@@ -21,9 +21,6 @@ describe('withCollection', () => {
         beforeAll(async() => {
             collection = await withCollection(__MONGO_CLIENT__, collectionName);
         });
-        test('returns instance of MongoCollection', () => {
-            expect(collection).toBeInstanceOf(MongoCollection);
-        });
         describe('class methods', () => {
             describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                 test('is a function', () => {
@@ -41,20 +38,12 @@ describe('withCollection', () => {
             describe('when client', () => {
                 describe('is empty or nil', () => {
                     test.each([...__EMPTY__, ...__NIL__])('when client is %p', __client__ => {
-                        expect(() => withCollection(__client__, null)).toThrow(/`client` cannot be empty or nil/);
+                        expect(() => withCollection(__client__, null)).toThrow(/`factory` cannot be empty or nil/);
                     });
-                });
-                describe('is not object', () => {
-                    test.each([true, false, 12.34, 'test-wexsrctvybunimop,'])('client=%p', __client__ => {
-                        expect(() => withCollection(__client__, null)).toThrow(/`client` must be object/);
-                    });
-                });
-                describe('does not have property `collection`', () => {
-                    expect(() => withCollection({ foo: 'bar' }, null)).toThrow(/`client` must have property `collection`/);
                 });
                 describe('*.collection is not a function', () => {
-                    test.each([true, false, 12.34, 'test-wexsrctvybunimop,', Symbol('test-ioukjyhtgrfed')])('client.collection=%p', __collection__ => {
-                        expect(() => withCollection({ collection: __collection__ }, null)).toThrow(/`client.collection` must be function/);
+                    test.each([true, false, 12.34, 'test-wexsrctvybunimop,', Symbol('test-ioukjyhtgrfed')])('factory=%p', __collection__ => {
+                        expect(() => withCollection({ collection: __collection__ }, null)).toThrow(/`factory` must be function/);
                     });
                 });
             });
@@ -72,9 +61,9 @@ describe('withCollection', () => {
             });
         });
         describe('bubbles expected error', () => {
-            test('on rejected client.collection', async() => {
+            test('on rejected factory', async() => {
                 expect.assertions(1);
-                __MONGO_CLIENT__.collection.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
+                __MONGO_CLIENT__.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
                 try {
                     await withCollection(__MONGO_CLIENT__, '__test_collection_qawsedrftgyhujikolp__');
                 } catch (err) {
