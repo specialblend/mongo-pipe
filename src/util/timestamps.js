@@ -1,6 +1,6 @@
 import { lensProp, set } from 'ramda';
 import moment from 'moment';
-import transformSpec from '../lib/transform';
+import { transformSpec } from '../lib/transform';
 import { pipeBefore } from '../lib/common';
 
 /**

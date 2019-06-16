@@ -1,26 +1,19 @@
+import { pipeSpec } from './transform';
+import { __MONGO_CLIENT__, __MONGO_CLIENT_ERR__, __MONGO_DRIVER__ } from '../../__mocks__/driver';
 import { concat, evolve, lensProp, map, set } from 'ramda';
-import { transformSpec } from './transform';
-import {
-    __MONGO_CLIENT__,
-    __MONGO_CLIENT_ERR__,
-    __MONGO_DRIVER__,
-} from '../../__mocks__/driver';
-import { pipeAfter, pipeBefore } from './common';
 
-const collectionName = 'test.collection.werxstcyvubinomp';
-
-describe('transformSpec', () => {
+describe('pipeSpec', () => {
     test('is a function', () => {
-        expect(transformSpec).toBeFunction();
+        expect(pipeSpec).toBeFunction();
     });
     describe('when called', () => {
-        const withFoo = transformSpec([{}]);
+        const withFoo = pipeSpec([{}]);
         describe('returns', () => {
             test('a function', () => {
                 expect(withFoo).toBeFunction();
             });
             test('a function which returns an object', () => {
-                const collectionWithFoo = withFoo(__MONGO_CLIENT__, collectionName);
+                const collectionWithFoo = withFoo(__MONGO_CLIENT__, 'test.collection.name-wexrctvyuim');
                 expect(collectionWithFoo).toBeObject();
             });
         });
@@ -35,9 +28,7 @@ describe('transformSpec', () => {
         const injectBar = set(lensProp('bar'), testValueBar);
         const injectBaz = set(lensProp('baz'), testValueBaz);
 
-        const concatFoo = map(concat('foo*'));
         const concatBar = map(concat('bar*'));
-        const concatBaz = map(concat('baz*'));
 
         const withValue = value => evolve({ value });
 
@@ -49,7 +40,7 @@ describe('transformSpec', () => {
 
         describe('with default factory', () => {
             describe('bubbles expected error', () => {
-                const uselessFactory = transformSpec([{}]);
+                const uselessFactory = pipeSpec([{}]);
                 test('on rejected factory', async() => {
                     expect.assertions(1);
                     __MONGO_CLIENT__.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
@@ -76,13 +67,11 @@ describe('transformSpec', () => {
             describe('single spec pipeline factory', () => {
                 const singleSpecPipeline = [
                     {
-                        insertOne: pipeBefore(injectFoo),
-                        updateOne: pipeBefore(injectBar),
-                        findOne: pipeAfter(withValue(concatFoo)),
-                        remove: pipeAfter(withValue(concatBar)),
+                        insertOne: injectFoo,
+                        updateOne: injectBar,
                     },
                 ];
-                const factory = transformSpec(singleSpecPipeline);
+                const factory = pipeSpec(singleSpecPipeline);
 
                 test('is a function', () => {
                     expect(factory).toBeFunction();
@@ -136,52 +125,22 @@ describe('transformSpec', () => {
                             expect(response).toMatchObject({ value: testResult });
                         });
                     });
-                    describe('findOne', () => {
-                        let response = null;
-                        const testResult = { hgfhgfhfghgf: 'qeawfsg' };
-                        beforeAll(async() => {
-                            __MONGO_DRIVER__.findOne.mockResolvedValueOnce(testResult);
-                            response = await collection.findOne(testPayload);
-                        });
-                        test('calls native Mongo.updateOne with expected payload', async() => {
-                            expect(__MONGO_DRIVER__.findOne).toHaveBeenCalledWith(testPayload);
-                        });
-                        test('returns expected result', () => {
-                            expect(response).toMatchObject({ value: concatFoo(testResult) });
-                        });
-                    });
-                    describe('remove', () => {
-                        let response = null;
-                        const testResult = { hgfhgfhfghgf: 'qeawfsg' };
-                        beforeAll(async() => {
-                            __MONGO_DRIVER__.remove.mockResolvedValueOnce(testResult);
-                            response = await collection.remove(testPayload);
-                        });
-                        test('calls native Mongo.updateOne with expected payload', async() => {
-                            expect(__MONGO_DRIVER__.remove).toHaveBeenCalledWith(testPayload);
-                        });
-                        test('returns expected result', () => {
-                            expect(response).toMatchObject({ value: concatBar(testResult) });
-                        });
-                    });
                 });
             });
 
             describe('multi spec pipeline factory', () => {
                 const multiSpecPipeline = [
                     {
-                        insertOne: pipeBefore(injectFoo),
-                        updateOne: pipeAfter(withValue(concatFoo)),
-                        findOne: pipeBefore(injectBar),
+                        insertOne: injectFoo,
+                        findOne: injectBar,
                     },
                     {
-                        insertOne: pipeAfter(withValue(concatBar)),
-                        updateOne: pipeBefore(injectBaz),
-                        findOne: pipeAfter(withValue(concatBaz)),
+                        insertOne: withValue(concatBar),
+                        updateOne: injectBaz,
                     },
                 ];
 
-                const factory = transformSpec(multiSpecPipeline);
+                const factory = pipeSpec(multiSpecPipeline);
 
                 test('is a function', () => {
                     expect(factory).toBeFunction();
@@ -214,7 +173,7 @@ describe('transformSpec', () => {
                                 });
                             });
                             test('returns expected testResult', () => {
-                                expect(response).toMatchObject({ value: concatBar(testResult) });
+                                expect(response).toMatchObject({ value: testResult });
                             });
                         });
                     });
@@ -232,24 +191,7 @@ describe('transformSpec', () => {
                             });
                         });
                         test('returns expected result', () => {
-                            expect(response).toMatchObject({ value: concatFoo(testResult) });
-                        });
-                    });
-                    describe('findOne', () => {
-                        let response = null;
-                        const testResult = { hgfhgfhfghgf: 'qeawfsg' };
-                        beforeAll(async() => {
-                            __MONGO_DRIVER__.findOne.mockResolvedValueOnce(testResult);
-                            response = await collection.findOne(testPayload);
-                        });
-                        test('calls native Mongo.updateOne with expected payload', async() => {
-                            expect(__MONGO_DRIVER__.findOne).toHaveBeenCalledWith({
-                                ...testPayload,
-                                bar: testValueBar,
-                            });
-                        });
-                        test('returns expected result', () => {
-                            expect(response).toMatchObject({ value: concatBaz(testResult) });
+                            expect(response).toMatchObject({ value: testResult });
                         });
                     });
                 });
