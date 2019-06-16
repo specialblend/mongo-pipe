@@ -1,4 +1,4 @@
-import { __, compose, converge, curry, evolve, identity, juxt, pipe, then, useWith } from 'ramda';
+import { __, compose, converge, curry, evolve, identity, juxt, map, pipe, then, useWith } from 'ramda';
 import assert from '@specialblend/assert';
 import { isEmptyOrNil } from './common';
 
@@ -27,9 +27,10 @@ const validateTransform = (spec, target) => {
     validateTarget(target);
 };
 
+
 const transform = curry(function transform(spec, target) {
     validateTransform(spec, target);
-    return pipe(target, then(evolve(spec)));
+    return compose(then(evolve(spec)), target);
 });
 
 /**
@@ -41,3 +42,6 @@ const transform = curry(function transform(spec, target) {
  * @returns {Function|*} transformed mongo-pipe constructor
  */
 export default transform;
+
+export const transformSpec = (...pipeline) =>
+    target => pipe(target, then(pipe(...map(evolve, pipeline))));

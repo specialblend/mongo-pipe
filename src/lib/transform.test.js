@@ -1,6 +1,6 @@
-import { always, keys, lensProp, pipe, set } from 'ramda';
+import { always, concat, evolve, is, keys, lensProp, pipe, set, when } from 'ramda';
 import withCollection from './mongo';
-import transform from './transform';
+import transform, { transformSpec } from './transform';
 import { __EMPTY__, __NIL__ } from '../../__mocks__/support';
 import {
     __MONGO_CLIENT__,
@@ -8,18 +8,30 @@ import {
     __MONGO_DRIVER__,
     __REF__,
 } from '../../__mocks__/driver';
+import { pipeAfter, pipeBefore } from './common';
 
 const collectionName = 'test.collection.werxstcyvubinomp';
 
 describe('transformed factory', () => {
     const id = 'test.id.awsercdtvybunimop';
-    const generateId = always(id);
+    const codename = 'test.codename.wexrtcyvubino';
     const setId = set(lensProp('id'));
-    const injectId = props => setId(generateId(), props);
-    const testSpec = {
-        insertOne: handler => pipe(injectId, handler),
+    const setCodenamed = set(lensProp('codename'));
+    const injectId = setId(id);
+    const injectId1 = set(lensProp('test'), 'yoooo');
+    const injectCodename = setCodenamed(codename);
+    const injectIdSpec = {
+        insertOne: pipeBefore(injectId, injectId1),
     };
-    const withUniqueID = transform(testSpec, withCollection);
+    const concatFooValue = evolve({ value: when(is(String), concat('foo*')) });
+    const injectCodenameSpec = {
+        insertOne: pipeBefore(injectCodename),
+    };
+    const concatFooValueSpec = {
+        insertOne: pipeAfter(concatFooValue),
+    };
+
+    const withUniqueID = transformSpec(injectIdSpec, injectCodenameSpec, concatFooValueSpec)(withCollection);
 
     test('is a function', () => {
         expect(withUniqueID).toBeFunction();
@@ -37,7 +49,8 @@ describe('transformed factory', () => {
                         expect(collection[method]).toBeFunction();
                     });
                     test('has correct binding reference', async() => {
-                        const { ref } = await collection[method]();
+                        const response = await collection[method]();
+                        const { ref } = response;
                         expect(ref).toBeFunction();
                         expect(ref()).toBe(__REF__);
                     });
@@ -48,20 +61,24 @@ describe('transformed factory', () => {
             test('calls native insertOne with expected parameters', async() => {
                 const payload = Symbol('collection.insertOne.payload');
                 const props = { payload };
-                await collection.insertOne(props);
-                expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({ id, payload });
+                const response = 'test.response.xerctvyubinm';
+                const value = concat('foo*', response);
+                __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(response);
+                const result = await collection.insertOne(props);
+                expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({ id, codename, payload, test: 'yoooo' });
+                expect(result).toMatchObject({ value });
             });
         });
         describe('throws expected assertion error', () => {
             describe('when target', () => {
                 describe('is empty or nil', () => {
                     test.each([...__EMPTY__, ...__NIL__])('when target is %p', target => {
-                        expect(() => transform(testSpec, target)).toThrow(/`target` cannot be empty or nil/);
+                        expect(() => transform(injectIdSpec, target)).toThrow(/`target` cannot be empty or nil/);
                     });
                 });
                 describe('is not a function', () => {
                     test.each([true, false, 12.34, 'test-wexsrctvybunimop,', Symbol('test-ioukjyhtgrfed')])('target=%p', target => {
-                        expect(() => transform(testSpec, target)).toThrow(/`target` must be function/);
+                        expect(() => transform(injectIdSpec, target)).toThrow(/`target` must be function/);
                     });
                 });
             });
