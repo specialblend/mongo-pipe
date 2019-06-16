@@ -1,6 +1,6 @@
-import { __, compose, converge, curry, evolve, identity, juxt, map, pipe, then, useWith } from 'ramda';
+import { __, apply, compose, converge, curry, evolve, identity, juxt, map, pipe, then, unapply, useWith } from 'ramda';
 import assert from '@specialblend/assert';
-import { isEmptyOrNil } from './common';
+import { isEmptyOrNil, pipeBefore } from './common';
 
 /**
  * Validate transform target
@@ -43,5 +43,7 @@ const transform = curry(function transform(spec, target) {
  */
 export default transform;
 
-export const transformSpec = (...pipeline) =>
-    target => pipe(target, then(pipe(...map(evolve, pipeline))));
+
+const handlePipeline = pipeline => then(apply(pipe, map(evolve, pipeline)));
+
+export const transformSpec = unapply(useWith(compose, [handlePipeline, identity]));
