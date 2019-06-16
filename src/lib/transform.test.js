@@ -79,9 +79,9 @@ describe('transformed factory', () => {
             });
         });
         describe('bubbles expected error', () => {
-            test('on rejected client.collection', async() => {
+            test('on rejected factory', async() => {
                 expect.assertions(1);
-                __MONGO_CLIENT__.collection.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
+                __MONGO_CLIENT__.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
                 try {
                     await withUniqueID(__MONGO_CLIENT__, '__test_collection_qawsedrftgyhujikolp__');
                 } catch (err) {

@@ -1,6 +1,6 @@
 export const __REF__ = Symbol('__REF__');
 
-const __NATIVE_METHOD_ASYNC__ = async() => null;
+const __NATIVE_METHOD_ASYNC__ = () => null;
 
 export const __MONGO_DRIVER__ = {
     aggregate: jest.fn(__NATIVE_METHOD_ASYNC__),
@@ -202,8 +202,6 @@ export class MongoCollection {
     }
 }
 
-export const __MONGO_CLIENT__ = {
-    collection: jest.fn(async name => new MongoCollection(name)),
-};
+export const __MONGO_CLIENT__ = jest.fn(async name => new MongoCollection(name));
 
 export const __MONGO_CLIENT_ERR__ = new Error('__MONGO_CLIENT_ERR__');

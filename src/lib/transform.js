@@ -1,24 +1,6 @@
-import { compose, curry, evolve, map, pick, pipe, then } from 'ramda';
+import { curry, evolve, pipe, then } from 'ramda';
 import assert from '@specialblend/assert';
-import { nativeSpecMethods } from './mongo';
-import { bindTo, isEmptyOrNil } from './common';
-
-/**
- * Builds a transformer spec
- * @type {function}
- * @param {object} spec transformed spec
- * @param {[string]} methods methods
- * @param {MongoCollection} collection collection
- * @returns {function} transformed spec
- */
-const constructTransformer = curry(
-    (spec, methods, collection) =>
-        compose(
-            map(bindTo(collection)),
-            evolve(spec),
-            pick(methods),
-        )(collection)
-);
+import { isEmptyOrNil } from './common';
 
 /**
  * Validate transform target
@@ -49,12 +31,12 @@ const validateTransformerSpec = function validateTransformerSpec(transformerSpec
  * @param {[string]} methods list of methods to bind
  * @returns {Function|*} transformed mongo-pipe constructor
  */
-const transform = curry(function transform(transformerSpec, target, methods = nativeSpecMethods) {
+const transform = curry(function transform(transformerSpec, target) {
     validateTarget(target);
     validateTransformerSpec(transformerSpec);
     return pipe(
         target,
-        then(constructTransformer(transformerSpec, methods)),
+        then(evolve(transformerSpec)),
     );
 });
 
