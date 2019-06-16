@@ -1,4 +1,4 @@
-import { always, concat, evolve, identity, is, keys, lensProp, map, pipe, prop, set, when } from 'ramda';
+import { concat, evolve, lensProp, map, set } from 'ramda';
 import transformSpec from './transform';
 import {
     __MONGO_CLIENT__,

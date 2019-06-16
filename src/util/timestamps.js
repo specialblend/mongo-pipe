@@ -1,6 +1,7 @@
-import { lensProp, pipe, set } from 'ramda';
+import { lensProp, set } from 'ramda';
 import moment from 'moment';
 import transformSpec from '../lib/transform';
+import { pipeBefore } from '../lib/common';
 
 /**
  * Inject provided/current time as `createdAt`
@@ -22,9 +23,9 @@ const injectUpdatedAt = (props, now = moment()) => set(lensProp('updatedAt'), no
  * Inject current time on inserts and updates
  * @type {{insertOne: (function(*=): (Function|*)), updateOne: (function(*=): (Function|*))}}
  */
-const withTimestampsSpec = {
-    insertOne: handler => pipe(injectCreatedAt, handler),
-    updateOne: handler => pipe(injectUpdatedAt, handler),
+const injectTimestamps = {
+    insertOne: pipeBefore(injectCreatedAt),
+    updateOne: pipeBefore(injectUpdatedAt),
 };
 
 /**
@@ -33,4 +34,4 @@ const withTimestampsSpec = {
  * @param {function} factory parent factory
  * @returns {function} new factory
  */
-export const withTimestamps = transformSpec([withTimestampsSpec]);
+export const withTimestamps = transformSpec([injectTimestamps]);
