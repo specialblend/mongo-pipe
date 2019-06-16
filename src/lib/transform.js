@@ -1,49 +1,19 @@
-import { __, apply, compose, converge, curry, evolve, identity, juxt, map, pipe, then, unapply, useWith } from 'ramda';
-import assert from '@specialblend/assert';
-import { isEmptyOrNil, pipeBefore } from './common';
+import { compose, evolve, identity, map, pipe, then, useWith } from 'ramda';
+
+import withCollection from './mongo';
+
+const mapPipeline = pipeline => pipe(...map(evolve, pipeline));
+const usePipeline = compose(then, mapPipeline);
+const useFactory = identity;
+const transform = useWith(compose, [usePipeline, useFactory]);
 
 /**
- * Validate transform target
- * @param {function} target target
- * @returns {void}
+ * extend target constructor
+ * and apply pipeline of spec transformations
+ * @param {[object]} pipeline list of transformer spec objects to apply
+ * @param {function} target collection constructor to extend
+ * @returns {function} transformed factory
  */
-const validateTarget = function validateTarget(target) {
-    assert(!isEmptyOrNil(target), '`target` cannot be empty or nil');
-    assert(typeof target === 'function', '`target` must be function');
-};
-
-/**
- * Validate transformerSpec
- * @param {object} transformerSpec spec
- * @returns {void}
- */
-const validateSpec = function validateSpec(transformerSpec) {
-    assert(!isEmptyOrNil(transformerSpec), '`spec` cannot be empty or nil');
-    assert(typeof transformerSpec === 'object', '`spec` must be object');
-};
-
-const validateTransform = (spec, target) => {
-    validateSpec(spec);
-    validateTarget(target);
-};
-
-
-const transform = curry(function transform(spec, target) {
-    validateTransform(spec, target);
-    return compose(then(evolve(spec)), target);
-});
-
-/**
- * Takes a mongo-pipe constructor and
- * returns a transformed mongo-pipe constructor
- * according to provided spec
- * @param {object} spec transformer spec
- * @param {function} target mongo-pipe constructor
- * @returns {Function|*} transformed mongo-pipe constructor
- */
-export default transform;
-
-
-const handlePipeline = pipeline => then(apply(pipe, map(evolve, pipeline)));
-
-export const transformSpec = unapply(useWith(compose, [handlePipeline, identity]));
+export default function transformSpec(pipeline, target = withCollection) {
+    return transform(pipeline, target);
+}

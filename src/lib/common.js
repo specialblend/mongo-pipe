@@ -1,15 +1,4 @@
-import {
-    bind,
-    compose,
-    either,
-    flip,
-    identity,
-    isEmpty,
-    isNil,
-    memoizeWith,
-    pipe, then,
-    unapply,
-} from 'ramda';
+import { bind, compose, either, flip, identity, isEmpty, isNil, memoizeWith, pipe, then, unapply, } from 'ramda';
 
 /**
  * Infinite arity memoize
