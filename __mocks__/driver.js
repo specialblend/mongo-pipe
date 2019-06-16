@@ -1,6 +1,6 @@
 export const __REF__ = Symbol('__REF__');
 
-const __NATIVE_METHOD_ASYNC__ = () => null;
+const __NATIVE_METHOD_ASYNC__ = () => '';
 
 export const __MONGO_DRIVER__ = {
     aggregate: jest.fn(__NATIVE_METHOD_ASYNC__),

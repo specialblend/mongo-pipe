@@ -1,11 +1,9 @@
 import { always, concat, evolve, identity, is, keys, lensProp, map, pipe, prop, set, when } from 'ramda';
-import withCollection from './mongo';
-import transformSpec, { pipeBeforeMethod } from './transform';
+import transformSpec from './transform';
 import {
     __MONGO_CLIENT__,
     __MONGO_CLIENT_ERR__,
     __MONGO_DRIVER__,
-    __REF__,
 } from '../../__mocks__/driver';
 import { pipeAfter, pipeBefore } from './common';
 
@@ -170,26 +168,92 @@ describe('transformed factory', () => {
             });
         });
 
-        // describe('multi spec pipeline factory', () => {
-        //     const multiSpecCollectionName = 'test.collection.single.spec.pipeline.zewsxrdtcfvgyubin';
-        //     const multiSpecPipeline = [
-        //         {
-        //             insertOne: pipeBefore(injectFoo),
-        //             updateOne: pipeAfter(concatFoo),
-        //             findOne: pipeBefore(injectBar),
-        //         },
-        //         {
-        //             insertOne: pipeAfter(concatBar),
-        //             updateOne: pipeBefore(injectBaz),
-        //             findOne: pipeAfter(concatBaz),
-        //         },
-        //     ];
-        //
-        //     const factory = transformSpec(multiSpecPipeline);
-        //
-        //     test('is a function', () => {
-        //         expect(factory).toBeFunction();
-        //     });
-        // });
+        describe('multi spec pipeline factory', () => {
+            const multiSpecPipeline = [
+                {
+                    insertOne: pipeBefore(injectFoo),
+                    updateOne: pipeAfter(withValue(concatFoo)),
+                    findOne: pipeBefore(injectBar),
+                },
+                {
+                    insertOne: pipeAfter(withValue(concatBar)),
+                    updateOne: pipeBefore(injectBaz),
+                    findOne: pipeAfter(withValue(concatBaz)),
+                },
+            ];
+
+            const factory = transformSpec(multiSpecPipeline);
+
+            test('is a function', () => {
+                expect(factory).toBeFunction();
+            });
+
+            describe('when called', () => {
+                let collection = null;
+                beforeAll(async() => {
+                    collection = await factory(__MONGO_CLIENT__, 'test.collection.multi.spec.pipeline.zewsxrdtcfvgyubin');
+                });
+                test('returns an resolved object', () => {
+                    expect(collection).toBeObject();
+                    expect(collection).not.toBeInstanceOf(Promise);
+                });
+                describe('insertOne', () => {
+                    test('is a function', () => {
+                        expect(collection.insertOne).toBeFunction();
+                    });
+                    describe('when called', () => {
+                        let response = null;
+                        const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
+                        beforeAll(async() => {
+                            __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
+                            response = await collection.insertOne(testPayload);
+                        });
+                        test('calls native Mongo.insertOne with transformed payload', () => {
+                            expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
+                                ...testPayload,
+                                foo: testValueFoo,
+                            });
+                        });
+                        test('returns expected testResult', () => {
+                            expect(response).toMatchObject({ value: concatBar(testResult) });
+                        });
+                    });
+                });
+                describe('updateOne', () => {
+                    let response = null;
+                    const testResult = { hgfhgfhfghgf: 'qeawfsg' };
+                    beforeAll(async() => {
+                        __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
+                        response = await collection.updateOne(testPayload);
+                    });
+                    test('calls native Mongo.updateOne with transformed payload', async() => {
+                        expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                            ...testPayload,
+                            baz: testValueBaz,
+                        });
+                    });
+                    test('returns expected result', () => {
+                        expect(response).toMatchObject({ value: concatFoo(testResult) });
+                    });
+                });
+                describe('findOne', () => {
+                    let response = null;
+                    const testResult = { hgfhgfhfghgf: 'qeawfsg' };
+                    beforeAll(async() => {
+                        __MONGO_DRIVER__.findOne.mockResolvedValueOnce(testResult);
+                        response = await collection.findOne(testPayload);
+                    });
+                    test('calls native Mongo.updateOne with expected payload', async() => {
+                        expect(__MONGO_DRIVER__.findOne).toHaveBeenCalledWith({
+                            ...testPayload,
+                            bar: testValueBar,
+                        });
+                    });
+                    test('returns expected result', () => {
+                        expect(response).toMatchObject({ value: concatBaz(testResult) });
+                    });
+                });
+            });
+        });
     });
 });
