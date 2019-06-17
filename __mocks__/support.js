@@ -9,7 +9,7 @@ const { log, info, debug, warn, error } = console;
  * unless process.env.DEBUG is set to true
  */
 beforeEach(() => {
-    if (process.env.DEBUG === 'true') {
+    if (true || process.env.DEBUG === 'true') {
         console.log = jest.fn(log);
         console.info = jest.fn(info);
         console.debug = jest.fn(debug);
@@ -34,4 +34,3 @@ afterAll(() => {
 
 export const __EMPTY__ = ['', {}, []];
 export const __NIL__ = [null, undefined];
-

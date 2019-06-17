@@ -1,22 +1,22 @@
 import LRU from 'lru-cache';
-import { either, pipe, prop } from 'ramda';
+import { curryN, either, identity, pipe, prop, tap, then } from 'ramda';
 import { transformSpec } from '../lib/transform';
 
 export const defaultCacheOptions = {
     max: 500,
-    length(n, key) {
-        return n * 2 + key.length;
-    },
-    dispose(key, n) {
-        n.close();
-    },
     maxAge: 1000 * 60 * 60,
 };
 
-export function withCache(options = defaultCacheOptions) {
+const createCache = options => {
     const cache = new LRU(options);
-    const getKey = pipe(prop('id'), cache.get.bind(cache));
+    const cacheGet = cache.get.bind(cache);
+    const cacheSet = curryN(2, cache.set.bind(cache));
+    return [cacheGet, cacheSet];
+};
+
+export function withCache(options = defaultCacheOptions) {
+    const [cacheGet, cacheSet] = createCache(options);
     return transformSpec([{
-        findOne: handler => either(getKey, handler),
+        findOne: handler => either(cacheGet, props => pipe(handler, then(tap(cacheSet(props))))(props)),
     }]);
 }

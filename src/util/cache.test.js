@@ -23,7 +23,7 @@ describe('withCache', () => {
                             expect(collection[method]).toBeFunction();
                         });
                         test('has correct binding reference', async() => {
-                            const { ref } = await collection[method]();
+                            const { ref } = await collection[method]({ id: 'yubhsfedubiosfdiunjfsionsfdiondfs' });
                             expect(ref).toBeFunction();
                             expect(ref()).toBe(__REF__);
                         });
