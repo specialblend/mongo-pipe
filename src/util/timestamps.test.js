@@ -7,8 +7,6 @@ import {
     __REF__,
 } from '../../__mocks__/driver';
 
-const collectionName = 'test.collection.erxtcyvucxtfcygtuvhibuu234756789';
-
 describe('withTimestamps', () => {
     test('is a function', () => {
         expect(withTimestamps).toBeFunction();
@@ -17,7 +15,7 @@ describe('withTimestamps', () => {
     describe('when called', () => {
         let collection = null;
         beforeAll(async() => {
-            collection = await withTimestamps(__MONGO_CLIENT__, collectionName);
+            collection = await withTimestamps(__MONGO_CLIENT__, 'test.collection.erxtcyvucxtfcygtuvhibuu234756789');
         });
         describe('collection', () => {
             describe('extends native collection', () => {
