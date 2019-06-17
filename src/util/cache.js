@@ -1,5 +1,5 @@
 import LRU from 'lru-cache';
-import { compose, curryN, either, identity, pipe, prop, tap, then } from 'ramda';
+import { compose, converge, curry, either, identity, pipe, prop, tap, then } from 'ramda';
 import { transformSpec } from '../lib/transform';
 
 export const defaultCacheOptions = {
@@ -10,10 +10,12 @@ export const defaultCacheOptions = {
 const createCache = options => {
     const cache = new LRU(options);
     const cacheGet = cache.get.bind(cache);
-    const cacheSet = curryN(2, cache.set.bind(cache));
+    const cacheSet = curry((key, value) => {
+        cache.set(key, value);
+        return value;
+    });
     return [cacheGet, cacheSet];
 };
-
 
 export function withCache(options = defaultCacheOptions) {
     const [cacheGet, cacheSet] = createCache(options);
@@ -21,10 +23,7 @@ export function withCache(options = defaultCacheOptions) {
         findOne: handler =>
             either(
                 cacheGet,
-                props => pipe(
-                    handler,
-                    compose(then, tap, cacheSet)(props)
-                )(props)
+                converge(cacheSet, [identity, handler]),
             ),
     }]);
 }

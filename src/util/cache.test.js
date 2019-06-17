@@ -60,6 +60,22 @@ describe('withCache', () => {
                         test('returns same result', () => {
                             expect(response2).toMatchObject({ value: testResult });
                         });
+                        describe('when called again with different payload', () => {
+                            let response3 = null;
+                            const payload2 = { id: 'extrcyvubino' };
+                            const testResult2 = { extrcyvui: 'ioubvic' };
+                            beforeAll(async() => {
+                                __MONGO_DRIVER__.findOne.mockClear();
+                                __MONGO_DRIVER__.findOne.mockResolvedValueOnce(testResult2);
+                                response3 = await collection.findOne(payload2);
+                            });
+                            test('calls native Mongo.findOne with expected payload', () => {
+                                expect(__MONGO_DRIVER__.findOne).toHaveBeenCalledWith(payload2);
+                            });
+                            test('returns expected result', () => {
+                                expect(response3).toMatchObject({ value: testResult2 });
+                            });
+                        });
                     });
                 });
             });
