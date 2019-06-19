@@ -14,24 +14,23 @@ const createCache = options => {
         return value;
     });
     const cacheClear = cache.del.bind(cache);
-    return { cacheGet, cacheSet, cacheClear };
+    const cacheBy = curry((selector, handler) =>
+        either(compose(cacheGet, selector), converge(cacheSet, [selector, handler])),
+    );
+
+    const bustCacheBy = curry((selector, handler) =>
+        pipe(tap(compose(cacheClear, selector)), handler),
+    );
+    return { cacheGet, cacheSet, cacheClear, cacheBy, bustCacheBy };
 };
-
-const cacheBy = curry((selector, { cacheGet, cacheSet }, handler) =>
-    either(compose(cacheGet, selector), converge(cacheSet, [selector, handler])),
-);
-
-const bustCacheBy = curry((selector, { cacheClear }, handler) =>
-    pipe(tap(compose(cacheClear, selector)), handler),
-);
 
 export function withCache(target, options = defaultCacheOptions) {
     const cache = createCache(options);
     const selector = prop('id');
     return evolve(
         {
-            findOne: cacheBy(selector, cache),
-            updateOne: bustCacheBy(selector, cache),
+            findOne: cache.cacheBy(selector),
+            updateOne: cache.bustCacheBy(selector),
         },
         target);
 }
