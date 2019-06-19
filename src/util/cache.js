@@ -1,5 +1,5 @@
 import LRU from 'lru-cache';
-import { compose, converge, curry, either, evolve, identity, pipe, prop, tap, unary } from 'ramda';
+import { compose, converge, curry, either, evolve, pipe, prop, tap } from 'ramda';
 
 export const defaultCacheOptions = {
     max: 500,
