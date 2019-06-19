@@ -1,24 +1,12 @@
-import { pipeSpec } from './transform';
-import { __MONGO_CLIENT__, __MONGO_CLIENT_ERR__, __MONGO_DRIVER__ } from '../../__mocks__/driver';
 import { concat, evolve, lensProp, map, set } from 'ramda';
+import { pipeSpec } from './common';
+import withCollection, { nativeSpecMethods } from './mongo';
+import { __MONGO_COLLECTION_FACTORY__, __MONGO_DRIVER__ } from '../../__mocks__/driver';
 
 describe('pipeSpec', () => {
     test('is a function', () => {
         expect(pipeSpec).toBeFunction();
     });
-    describe('when called', () => {
-        const withFoo = pipeSpec([{}]);
-        describe('returns', () => {
-            test('a function', () => {
-                expect(withFoo).toBeFunction();
-            });
-            test('a function which returns an object', () => {
-                const collectionWithFoo = withFoo(__MONGO_CLIENT__, 'test.collection.name-wexrctvyuim');
-                expect(collectionWithFoo).toBeObject();
-            });
-        });
-    });
-
     describe('works as expected', () => {
         const testValueFoo = 'test.value.foo.qwerty';
         const testValueBar = 'test.value.bar.asdfgh';
@@ -38,161 +26,128 @@ describe('pipeSpec', () => {
             charlie: 'test.value.charlie',
         };
 
-        describe('with default factory', () => {
-            describe('bubbles expected error', () => {
-                const uselessFactory = pipeSpec([{}]);
-                test('on rejected factory', async() => {
-                    expect.assertions(1);
-                    __MONGO_CLIENT__.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
-                    try {
-                        await uselessFactory(__MONGO_CLIENT__, '__test_collection_qawsedrftgyhujikolp__');
-                    } catch (err) {
-                        expect(err).toBe(__MONGO_CLIENT_ERR__);
-                    }
+        describe('single spec pipeline factory', () => {
+            const singleSpecPipeline = [{
+                insertOne: injectFoo,
+                updateOne: injectBar,
+            }];
+            describe('when called', () => {
+                let pipedCollection = null;
+                beforeAll(async() => {
+                    const collection = await withCollection(__MONGO_COLLECTION_FACTORY__, 'test.collection.single.spec.pipeline.zsexrdctfvgybuhijnm');
+                    pipedCollection = collection.pipe(...singleSpecPipeline);
                 });
-                test('on rejected native driver call', async() => {
-                    expect.assertions(1);
-                    const payload = 'exrtcyvubinomp,[.';
-                    const expectedErr = new Error('lioukyjnhtbgrvefc');
-                    const collection = await uselessFactory(__MONGO_CLIENT__, 'sexdcfghjk');
-                    __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
-                    try {
-                        await collection.insertOne(payload);
-                    } catch (err) {
-                        expect(err).toBe(expectedErr);
-                    }
+                test('returns an resolved object', () => {
+                    expect(pipedCollection).toBeObject();
+                    expect(pipedCollection).not.toBeInstanceOf(Promise);
                 });
-            });
-
-            describe('single spec pipeline factory', () => {
-                const singleSpecPipeline = [
-                    {
-                        insertOne: injectFoo,
-                        updateOne: injectBar,
-                    },
-                ];
-                const factory = pipeSpec(singleSpecPipeline);
-
-                test('is a function', () => {
-                    expect(factory).toBeFunction();
+                describe('has expected methods', () => {
+                    test.each(nativeSpecMethods)('%p', method => {
+                        expect(pipedCollection).toHaveProperty(method);
+                        expect(pipedCollection[method]).toBeFunction();
+                    });
                 });
-
-                describe('when called', () => {
-                    let collection = null;
-                    beforeAll(async() => {
-                        collection = await factory(__MONGO_CLIENT__, 'test.collection.single.spec.pipeline.zsexrdctfvgybuhijnm');
+                describe('insertOne', () => {
+                    test('is a function', () => {
+                        expect(pipedCollection.insertOne).toBeFunction();
                     });
-                    test('returns an resolved object', () => {
-                        expect(collection).toBeObject();
-                        expect(collection).not.toBeInstanceOf(Promise);
-                    });
-                    describe('insertOne', () => {
-                        test('is a function', () => {
-                            expect(collection.insertOne).toBeFunction();
-                        });
-                        describe('when called', () => {
-                            let response = null;
-                            const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
-                            beforeAll(async() => {
-                                __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
-                                response = await collection.insertOne(testPayload);
-                            });
-                            test('calls native Mongo.insertOne with transformed payload', () => {
-                                expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
-                                    ...testPayload,
-                                    foo: testValueFoo,
-                                });
-                            });
-                            test('returns expected testResult', () => {
-                                expect(response).toMatchObject({ value: testResult });
-                            });
-                        });
-                    });
-                    describe('updateOne', () => {
+                    describe('when called', () => {
                         let response = null;
-                        const testResult = { hgfhgfhfghgf: 'qeawfsg' };
+                        const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
-                            response = await collection.updateOne(testPayload);
+                            __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
+                            response = await pipedCollection.insertOne(testPayload);
                         });
-                        test('calls native Mongo.updateOne with transformed payload', async() => {
-                            expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                        test('calls native Mongo.insertOne with transformed payload', () => {
+                            expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
-                                bar: testValueBar,
+                                foo: testValueFoo,
                             });
                         });
-                        test('returns expected result', () => {
+                        test('returns expected testResult', () => {
                             expect(response).toMatchObject({ value: testResult });
                         });
                     });
                 });
-            });
-
-            describe('multi spec pipeline factory', () => {
-                const multiSpecPipeline = [
-                    {
-                        insertOne: injectFoo,
-                        findOne: injectBar,
-                    },
-                    {
-                        insertOne: withValue(concatBar),
-                        updateOne: injectBaz,
-                    },
-                ];
-
-                const factory = pipeSpec(multiSpecPipeline);
-
-                test('is a function', () => {
-                    expect(factory).toBeFunction();
-                });
-
-                describe('when called', () => {
-                    let collection = null;
+                describe('updateOne', () => {
+                    let response = null;
+                    const testResult = { hgfhgfhfghgf: 'qeawfsg' };
                     beforeAll(async() => {
-                        collection = await factory(__MONGO_CLIENT__, 'test.collection.multi.spec.pipeline.zewsxrdtcfvgyubin');
+                        __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
+                        response = await pipedCollection.updateOne(testPayload);
                     });
-                    test('returns an resolved object', () => {
-                        expect(collection).toBeObject();
-                        expect(collection).not.toBeInstanceOf(Promise);
-                    });
-                    describe('insertOne', () => {
-                        test('is a function', () => {
-                            expect(collection.insertOne).toBeFunction();
-                        });
-                        describe('when called', () => {
-                            let response = null;
-                            const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
-                            beforeAll(async() => {
-                                __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
-                                response = await collection.insertOne(testPayload);
-                            });
-                            test('calls native Mongo.insertOne with transformed payload', () => {
-                                expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
-                                    ...testPayload,
-                                    foo: testValueFoo,
-                                });
-                            });
-                            test('returns expected testResult', () => {
-                                expect(response).toMatchObject({ value: testResult });
-                            });
+                    test('calls native Mongo.updateOne with transformed payload', async() => {
+                        expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                            ...testPayload,
+                            bar: testValueBar,
                         });
                     });
-                    describe('updateOne', () => {
+                    test('returns expected result', () => {
+                        expect(response).toMatchObject({ value: testResult });
+                    });
+                });
+            });
+        });
+
+        describe('multi spec pipeline factory', () => {
+            const multiSpecPipeline = [
+                {
+                    insertOne: injectFoo,
+                    findOne: injectBar,
+                },
+                {
+                    insertOne: withValue(concatBar),
+                    updateOne: injectBaz,
+                },
+            ];
+
+            describe('when called', () => {
+                let pipedCollection = null;
+                beforeAll(async() => {
+                    const collection = await withCollection(__MONGO_COLLECTION_FACTORY__, 'test.collection.multi.spec.pipeline.zewsxrdtcfvgyubin');
+                    pipedCollection = collection.pipe(...multiSpecPipeline);
+                });
+                test('returns an resolved object', () => {
+                    expect(pipedCollection).toBeObject();
+                    expect(pipedCollection).not.toBeInstanceOf(Promise);
+                });
+                describe('insertOne', () => {
+                    test('is a function', () => {
+                        expect(pipedCollection.insertOne).toBeFunction();
+                    });
+                    describe('when called', () => {
                         let response = null;
-                        const testResult = { hgfhgfhfghgf: 'qeawfsg' };
+                        const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
-                            response = await collection.updateOne(testPayload);
+                            __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
+                            response = await pipedCollection.insertOne(testPayload);
                         });
-                        test('calls native Mongo.updateOne with transformed payload', async() => {
-                            expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                        test('calls native Mongo.insertOne with transformed payload', () => {
+                            expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
-                                baz: testValueBaz,
+                                foo: testValueFoo,
                             });
                         });
-                        test('returns expected result', () => {
+                        test('returns expected testResult', () => {
                             expect(response).toMatchObject({ value: testResult });
                         });
+                    });
+                });
+                describe('updateOne', () => {
+                    let response = null;
+                    const testResult = { hgfhgfhfghgf: 'qeawfsg' };
+                    beforeAll(async() => {
+                        __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
+                        response = await pipedCollection.updateOne(testPayload);
+                    });
+                    test('calls native Mongo.updateOne with transformed payload', async() => {
+                        expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                            ...testPayload,
+                            baz: testValueBaz,
+                        });
+                    });
+                    test('returns expected result', () => {
+                        expect(response).toMatchObject({ value: testResult });
                     });
                 });
             });

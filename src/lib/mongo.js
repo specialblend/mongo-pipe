@@ -1,6 +1,6 @@
-import { binary, compose, curry, is, map, pick, pipe } from 'ramda';
 import assert from '@specialblend/assert';
-import { bindTo, isEmptyOrNil, memoizeAll } from './common';
+import { binary, compose, curry, is, map, mergeRight, pick, pipe } from 'ramda';
+import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
@@ -56,9 +56,7 @@ export const nativeSpecMethods = [
     'watch',
 ];
 
-// export const explicateNativeMethods = converge(map, [bindTo, pick(nativeSpecMethods)]);
-
-export const explicateNativeMethods = collection => pipe(
+const explicateNativeMethods = collection => pipe(
     pick(nativeSpecMethods),
     map(bindTo(collection)),
 )(collection);
@@ -90,18 +88,15 @@ const validateCollectionName = function validateCollectionName(name) {
  * @param {string} name Mongo collection name
  * @returns {MongoCollection} Mongo collection
  */
-export const connect = function connect(factory, name) {
-    validateFactory(factory);
-    validateCollectionName(name);
-    return factory(name).then(explicateNativeMethods);
-};
-
-/**
- * Curried, memoized mongo-pipe constructor
- * @type {function}
- * @param {Client} client native Mongo client
- * @params {string} name Mongo collection name
- */
-const withCollection = compose(curry, binary(memoizeAll))(connect);
+const withCollection = compose(curry, binary(memoizeAll))(
+    async function connect(factory, name) {
+        validateFactory(factory);
+        validateCollectionName(name);
+        const target = await factory(name).then(explicateNativeMethods);
+        return mergeRight(target, {
+            pipe: (...specPipeline) => pipe(...map(pipeSpec, specPipeline))(target),
+        });
+    }
+);
 
 export default withCollection;

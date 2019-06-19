@@ -1,4 +1,20 @@
-import { bind, compose, either, flip, identity, isEmpty, isNil, memoizeWith, pipe, then, unapply } from 'ramda';
+import {
+    binary,
+    bind,
+    compose,
+    curry,
+    either,
+    evolve,
+    flip,
+    identity,
+    isEmpty,
+    isNil,
+    map,
+    memoizeWith,
+    pipe,
+    unapply,
+    useWith,
+} from 'ramda';
 
 /**
  * Infinite arity memoize
@@ -18,19 +34,13 @@ export const isEmptyOrNil = either(isEmpty, isNil);
 export const bindTo = flip(bind);
 
 /**
- * Returns a function
- * that calls handler
- * with result of calling pipeline
- * @param {[function]} pipeline list of functions
- * @returns {function(*=)} pipeline
+ * binary pipe
+ * @type {function}
  */
-export const pipeBefore = (...pipeline) => target => pipe(...pipeline, target);
+export const pipe2 = compose(curry, binary)(pipe);
 
 /**
- * Returns a function
- * that calls pipeline
- * with result of calling handler
- * @param {[function]} pipeline list of functions
- * @returns {function(*=)} pipeline
+ * Transform spec before target handler
+ * @type {function}
  */
-export const pipeAfter = (...pipeline) => target => pipe(target, then(pipe(...pipeline)));
+export const pipeSpec = useWith(evolve, [map(pipe2), identity]);
