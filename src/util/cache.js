@@ -1,5 +1,5 @@
 import LRU from 'lru-cache';
-import { converge, curry, either, evolve, identity, pipe, tap } from 'ramda';
+import { compose, converge, curry, either, evolve, identity, pipe, prop, tap, unary } from 'ramda';
 
 export const defaultCacheOptions = {
     max: 500,
@@ -17,20 +17,21 @@ const createCache = options => {
     return { cacheGet, cacheSet, cacheClear };
 };
 
-const handleCacheGet = curry(({ cacheGet, cacheSet }, handler) =>
-    either(cacheGet, converge(cacheSet, [identity, handler])),
+const cacheBy = curry((selector, { cacheGet, cacheSet }, handler) =>
+    either(compose(cacheGet, selector), converge(cacheSet, [selector, handler])),
 );
 
-const handleCacheBust = curry(({ cacheClear }, handler) =>
-    pipe(tap(cacheClear), handler),
+const bustCacheBy = curry((selector, { cacheClear }, handler) =>
+    pipe(tap(compose(cacheClear, selector)), handler),
 );
 
 export function withCache(target, options = defaultCacheOptions) {
     const cache = createCache(options);
+    const selector = prop('id');
     return evolve(
         {
-            findOne: handleCacheGet(cache),
-            updateOne: handleCacheBust(cache),
+            findOne: cacheBy(selector, cache),
+            updateOne: bustCacheBy(selector, cache),
         },
         target);
 }
