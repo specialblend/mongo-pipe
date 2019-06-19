@@ -1,6 +1,6 @@
 import {
     binary,
-    bind,
+    bind, call,
     compose,
     curry,
     either,
@@ -52,5 +52,5 @@ export const pipeSpec = useWith(evolve, [map(pipe2), identity]);
  * @returns {function} function
  */
 export const pipeSpecs = curry(
-    (target, pipeline) => pipe(...map(pipeSpec, pipeline))(target)
+    (target, pipeline) => call(pipe(...map(pipeSpec, pipeline)), target)
 );
