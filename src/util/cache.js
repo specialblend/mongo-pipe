@@ -1,5 +1,6 @@
 import LRU from 'lru-cache';
-import { compose, converge, curry, either, evolve, pipe, prop, tap } from 'ramda';
+import { always, compose, converge, curry, either, evolve, isEmpty, pipe, prop, tap, when } from 'ramda';
+import { isEmptyOrNil } from '../lib/common';
 
 export const defaultCacheOptions = {
     max: 500,
@@ -24,13 +25,17 @@ const createCache = options => {
     return { cacheGet, cacheSet, cacheClear, cacheBy, bustCacheBy };
 };
 
-export function withCache(target, options = defaultCacheOptions) {
+export const withCache = function withCache(target, options = defaultCacheOptions) {
     const cache = createCache(options);
-    const selector = prop('id');
+    const idSelector = prop('id');
+    const allSelector = always('*');
+    const findSelector = when(isEmptyOrNil, allSelector);
     return evolve(
         {
-            findOne: cache.cacheBy(selector),
-            updateOne: cache.bustCacheBy(selector),
+            find: cache.cacheBy(findSelector),
+            findOne: cache.cacheBy(idSelector),
+            updateOne: cache.bustCacheBy(idSelector),
+            insertOne: cache.bustCacheBy(allSelector),
         },
         target);
 }
