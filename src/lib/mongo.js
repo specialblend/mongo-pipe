@@ -1,6 +1,19 @@
 import assert from '@specialblend/assert';
-import { curry, map, mergeRight, pick, pipe } from 'ramda';
-import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec } from './common';
+import {
+    applySpec,
+    binary,
+    call,
+    compose,
+    converge,
+    curry,
+    identity,
+    map,
+    mergeRight, objOf,
+    pick,
+    pipe, then,
+    unapply,
+} from 'ramda';
+import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec, pipeSpecs } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
@@ -77,30 +90,36 @@ const validateFactory = function validateFactory(factory) {
  * @returns {void}
  */
 const validateCollectionName = function validateCollectionName(name) {
-    const isSet = !isEmptyOrNil(name);
-    const isString = typeof name === 'string';
-    assert(isSet, 'collection `name` cannot be empty or nil');
-    assert(isString, 'collection `name` must be string');
-};
-
-const pipeCollection = (target, specPipeline) => pipe(...map(pipeSpec, specPipeline))(target);
-
-const connect = async function connect(factory, name) {
-    validateFactory(factory);
-    validateCollectionName(name);
-    const target = await factory(name).then(explicateNativeMethods);
-    return mergeRight(target, {
-        pipe: (...specPipeline) => pipeCollection(target, specPipeline),
-    });
+    assert(!isEmptyOrNil(name), 'collection `name` cannot be empty or nil');
+    assert(typeof name === 'string', 'collection `name` must be string');
 };
 
 /**
- * Returns a native Mongo collection
+ * Setup pipe
+ * @param {object} target target
+ * @returns {object} target
+ */
+const setupPipe = target => mergeRight(target, {
+    pipe: (...pipeline) => pipeSpecs(target, pipeline),
+});
+
+/**
+ * create mongo-pipe object
+ * @type {function}
+ */
+const connect = pipe(call, then(pipe(explicateNativeMethods, setupPipe)));
+
+/**
+ * mongo-pipe constructor
  * @type {function}
  * @param {function} factory native Mongo collection factory
  * @param {string} name Mongo collection name
- * @returns {MongoCollection} Mongo collection
+ * @returns {object} mongo-pipe collection
  */
-const withCollection = curry(memoizeAll(connect));
+const withCollection = compose(curry, memoizeAll)((factory, name) => {
+    validateFactory(factory);
+    validateCollectionName(name);
+    return connect(factory, name);
+});
 
 export default withCollection;

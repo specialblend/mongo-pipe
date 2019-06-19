@@ -44,3 +44,13 @@ export const pipe2 = compose(curry, binary)(pipe);
  * @type {function}
  */
 export const pipeSpec = useWith(evolve, [map(pipe2), identity]);
+
+/**
+ * Apply list of specs to target handler
+ * @param {object} target target handler
+ * @param {[object]} pipeline list of specs
+ * @returns {function} function
+ */
+export const pipeSpecs = curry(
+    (target, pipeline) => pipe(...map(pipeSpec, pipeline))(target)
+);
