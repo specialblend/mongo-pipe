@@ -20,7 +20,7 @@ import {
  * Infinite arity memoize
  * @type {function}
  */
-export const memoizeAll = compose(memoizeWith, unapply)(identity);
+export const memoizeAll = memoizeWith(unapply(identity));
 
 /**
  * Returns true if expression is empty or nil (null or undefined)

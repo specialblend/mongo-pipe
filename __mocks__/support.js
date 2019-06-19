@@ -34,4 +34,5 @@ afterAll(() => {
 
 export const __EMPTY__ = ['', {}, []];
 export const __NIL__ = [null, undefined];
-
+export const __NOT_FUNCTION__ = [true, false, 12.34, 'test-wexsrctvybunimop,'];
+export const __NOT_STRING__ = [true, 12.34, ['foo', 'bar']];

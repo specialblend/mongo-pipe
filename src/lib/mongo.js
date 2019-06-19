@@ -1,5 +1,5 @@
 import assert from '@specialblend/assert';
-import { binary, compose, curry, is, map, mergeRight, pick, pipe } from 'ramda';
+import { binary, compose, curry, is, map, memoizeWith, mergeRight, pick, pipe } from 'ramda';
 import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec } from './common';
 
 /**
@@ -77,8 +77,21 @@ const validateFactory = function validateFactory(factory) {
  * @returns {void}
  */
 const validateCollectionName = function validateCollectionName(name) {
-    assert(!isEmptyOrNil(name), 'collection `name` cannot be empty or nil');
-    assert(is(String, name), 'collection `name` must be string');
+    const isSet = !isEmptyOrNil(name);
+    const isString = typeof name === 'string';
+    assert(isSet, 'collection `name` cannot be empty or nil');
+    assert(isString, 'collection `name` must be string');
+};
+
+const pipeCollection = (target, specPipeline) => pipe(...map(pipeSpec, specPipeline))(target);
+
+const connect = async function connect(factory, name) {
+    validateFactory(factory);
+    validateCollectionName(name);
+    const target = await factory(name).then(explicateNativeMethods);
+    return mergeRight(target, {
+        pipe: (...specPipeline) => pipeCollection(target, specPipeline),
+    });
 };
 
 /**
@@ -88,15 +101,6 @@ const validateCollectionName = function validateCollectionName(name) {
  * @param {string} name Mongo collection name
  * @returns {MongoCollection} Mongo collection
  */
-const withCollection = compose(curry, binary(memoizeAll))(
-    async function connect(factory, name) {
-        validateFactory(factory);
-        validateCollectionName(name);
-        const target = await factory(name).then(explicateNativeMethods);
-        return mergeRight(target, {
-            pipe: (...specPipeline) => pipe(...map(pipeSpec, specPipeline))(target),
-        });
-    }
-);
+const withCollection = curry(memoizeAll(connect));
 
 export default withCollection;
