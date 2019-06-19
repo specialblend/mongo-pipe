@@ -1,19 +1,6 @@
 import assert from '@specialblend/assert';
-import {
-    applySpec,
-    binary,
-    call,
-    compose,
-    converge,
-    curry,
-    identity,
-    map,
-    mergeRight, objOf,
-    pick,
-    pipe, then,
-    unapply,
-} from 'ramda';
-import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec, pipeSpecs } from './common';
+import { call, compose, converge, curry, map, mergeRight, pick, pipe, then } from 'ramda';
+import { bindTo, isEmptyOrNil, memoizeAll, pipeSpecs } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
@@ -69,10 +56,12 @@ export const nativeSpecMethods = [
     'watch',
 ];
 
-const explicateNativeMethods = collection => pipe(
-    pick(nativeSpecMethods),
-    map(bindTo(collection)),
-)(collection);
+/**
+ * Explicitly copy native methods
+ * and bind them to collection
+ * @type {function}
+ */
+const explicateNativeMethods = converge(map, [bindTo, pick(nativeSpecMethods)]);
 
 /**
  * Validate Mongo client

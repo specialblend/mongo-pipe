@@ -1,11 +1,12 @@
 import {
+    __,
     binary,
-    bind, call,
+    bind,
+    call,
     compose,
     curry,
     either,
     evolve,
-    flip,
     identity,
     isEmpty,
     isNil,
@@ -30,8 +31,10 @@ export const isEmptyOrNil = either(isEmpty, isNil);
 
 /**
  * Bind function to provided object
+ * @param {object} obj object to bound to
+ * @returns {function} bound function
  */
-export const bindTo = flip(bind);
+export const bindTo = obj => bind(__, obj);
 
 /**
  * binary pipe
