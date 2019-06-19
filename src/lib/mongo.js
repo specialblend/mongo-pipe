@@ -1,6 +1,6 @@
-import { binary, compose, curry, is, map, pick, pipe } from 'ramda';
 import assert from '@specialblend/assert';
-import { bindTo, isEmptyOrNil, memoizeAll } from './common';
+import { call, compose, converge, curry, map, mergeRight, pick, pipe, then } from 'ramda';
+import { bindTo, isEmptyOrNil, memoizeAll, pipeSpecs } from './common';
 
 /**
  * List of native Mongo collection methods to proxy
@@ -56,12 +56,12 @@ export const nativeSpecMethods = [
     'watch',
 ];
 
-// export const explicateNativeMethods = converge(map, [bindTo, pick(nativeSpecMethods)]);
-
-export const explicateNativeMethods = collection => pipe(
-    pick(nativeSpecMethods),
-    map(bindTo(collection)),
-)(collection);
+/**
+ * Explicitly copy native methods
+ * and bind them to collection
+ * @type {function}
+ */
+const explicateNativeMethods = converge(map, [bindTo, pick(nativeSpecMethods)]);
 
 /**
  * Validate Mongo client
@@ -80,28 +80,35 @@ const validateFactory = function validateFactory(factory) {
  */
 const validateCollectionName = function validateCollectionName(name) {
     assert(!isEmptyOrNil(name), 'collection `name` cannot be empty or nil');
-    assert(is(String, name), 'collection `name` must be string');
+    assert(typeof name === 'string', 'collection `name` must be string');
 };
 
 /**
- * Returns a native Mongo collection
+ * Setup pipe
+ * @param {object} target target
+ * @returns {object} target
+ */
+const setupPipe = target => mergeRight(target, {
+    pipe: (...pipeline) => pipeSpecs(target, pipeline),
+});
+
+/**
+ * create mongo-pipe object
+ * @type {function}
+ */
+const connect = pipe(call, then(pipe(explicateNativeMethods, setupPipe)));
+
+/**
+ * mongo-pipe constructor
  * @type {function}
  * @param {function} factory native Mongo collection factory
  * @param {string} name Mongo collection name
- * @returns {MongoCollection} Mongo collection
+ * @returns {object} mongo-pipe collection
  */
-export const connect = function connect(factory, name) {
+const withCollection = compose(curry, memoizeAll)((factory, name) => {
     validateFactory(factory);
     validateCollectionName(name);
-    return factory(name).then(explicateNativeMethods);
-};
-
-/**
- * Curried, memoized mongo-pipe constructor
- * @type {function}
- * @param {Client} client native Mongo client
- * @params {string} name Mongo collection name
- */
-const withCollection = compose(curry, binary(memoizeAll))(connect);
+    return connect(factory, name);
+});
 
 export default withCollection;

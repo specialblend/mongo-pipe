@@ -202,6 +202,6 @@ export class MongoCollection {
     }
 }
 
-export const __MONGO_CLIENT__ = jest.fn(async name => new MongoCollection(name));
+export const __MONGO_COLLECTION_FACTORY__ = jest.fn(async name => new MongoCollection(name));
 
 export const __MONGO_CLIENT_ERR__ = new Error('__MONGO_CLIENT_ERR__');

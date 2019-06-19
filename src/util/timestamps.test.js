@@ -2,10 +2,11 @@ import moment from 'moment';
 import { keys } from 'ramda';
 import { withTimestamps } from './timestamps';
 import {
-    __MONGO_CLIENT__,
+    __MONGO_COLLECTION_FACTORY__,
     __MONGO_DRIVER__,
     __REF__,
 } from '../../__mocks__/driver';
+import withCollection from '../lib/mongo';
 
 const collectionName = 'test.collection.erxtcyvucxtfcygtuvhibuu234756789';
 
@@ -15,18 +16,19 @@ describe('withTimestamps', () => {
     });
 
     describe('when called', () => {
-        let collection = null;
+        let collectionWithTimestamps = null;
         beforeAll(async() => {
-            collection = await withTimestamps(__MONGO_CLIENT__, collectionName);
+            const collection = await withCollection(__MONGO_COLLECTION_FACTORY__, collectionName);
+            collectionWithTimestamps = withTimestamps(collection);
         });
         describe('collection', () => {
             describe('extends native collection', () => {
                 describe.each(keys(__MONGO_DRIVER__))('%p', method => {
                     test('is a function', () => {
-                        expect(collection[method]).toBeFunction();
+                        expect(collectionWithTimestamps[method]).toBeFunction();
                     });
                     test('has correct binding reference', async() => {
-                        const { ref } = await collection[method]();
+                        const { ref } = await collectionWithTimestamps[method]();
                         expect(ref).toBeFunction();
                         expect(ref()).toBe(__REF__);
                     });
@@ -38,7 +40,7 @@ describe('withTimestamps', () => {
                 const createdAt = expect.any(moment);
                 const payload = Symbol('collection.insertOne.payload');
                 const props = { payload };
-                await collection.insertOne(props);
+                await collectionWithTimestamps.insertOne(props);
                 expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({ createdAt, payload });
             });
         });
@@ -47,7 +49,7 @@ describe('withTimestamps', () => {
                 const updatedAt = expect.any(moment);
                 const payload = Symbol('collection.insertOne.payload');
                 const props = { payload };
-                await collection.updateOne(props);
+                await collectionWithTimestamps.updateOne(props);
                 expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({ updatedAt, payload });
             });
         });
@@ -58,7 +60,7 @@ describe('withTimestamps', () => {
                 const expectedErr = new Error('qawsedrftgyuiokyutjre');
                 __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
                 try {
-                    await collection.insertOne(payload);
+                    await collectionWithTimestamps.insertOne(payload);
                 } catch (err) {
                     expect(err).toBe(expectedErr);
                 }

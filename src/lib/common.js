@@ -1,10 +1,27 @@
-import { bind, compose, either, flip, identity, isEmpty, isNil, memoizeWith, pipe, then, unapply } from 'ramda';
+import {
+    __,
+    binary,
+    bind,
+    call,
+    compose,
+    curry,
+    either,
+    evolve,
+    identity,
+    isEmpty,
+    isNil,
+    map,
+    memoizeWith,
+    pipe,
+    unapply,
+    useWith,
+} from 'ramda';
 
 /**
  * Infinite arity memoize
  * @type {function}
  */
-export const memoizeAll = compose(memoizeWith, unapply)(identity);
+export const memoizeAll = memoizeWith(unapply(identity));
 
 /**
  * Returns true if expression is empty or nil (null or undefined)
@@ -14,23 +31,29 @@ export const isEmptyOrNil = either(isEmpty, isNil);
 
 /**
  * Bind function to provided object
+ * @param {object} obj object to bound to
+ * @returns {function} bound function
  */
-export const bindTo = flip(bind);
+export const bindTo = obj => bind(__, obj);
 
 /**
- * Returns a function
- * that calls handler
- * with result of calling pipeline
- * @param {[function]} pipeline list of functions
- * @returns {function(*=)} pipeline
+ * binary pipe
+ * @type {function}
  */
-export const pipeBefore = (...pipeline) => target => pipe(...pipeline, target);
+export const pipe2 = compose(curry, binary)(pipe);
 
 /**
- * Returns a function
- * that calls pipeline
- * with result of calling handler
- * @param {[function]} pipeline list of functions
- * @returns {function(*=)} pipeline
+ * Transform spec before target handler
+ * @type {function}
  */
-export const pipeAfter = (...pipeline) => target => pipe(target, then(pipe(...pipeline)));
+export const pipeSpec = useWith(evolve, [map(pipe2), identity]);
+
+/**
+ * Apply list of specs to target handler
+ * @param {object} target target handler
+ * @param {[object]} pipeline list of specs
+ * @returns {function} function
+ */
+export const pipeSpecs = curry(
+    (target, pipeline) => call(pipe(...map(pipeSpec, pipeline)), target)
+);

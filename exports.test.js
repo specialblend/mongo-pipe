@@ -7,7 +7,6 @@ import * as utilCJS from './dist/util.cjs';
 describe('main', () => {
     const expectedExport = {
         withCollection: expect.any(Function),
-        transformSpec: expect.any(Function),
         pipeSpec: expect.any(Function),
     };
     test('exports are importable', () => {

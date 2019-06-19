@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { lensProp, set } from 'ramda';
-import { pipeSpec } from '../lib/transform';
+import { pipeSpec } from '../lib/common';
 
 /**
  * Inject provided/current time as `createdAt`
@@ -33,4 +33,4 @@ const injectTimestamps = {
  * @param {function} factory parent factory
  * @returns {function} new factory
  */
-export const withTimestamps = pipeSpec([injectTimestamps]);
+export const withTimestamps = pipeSpec(injectTimestamps);
