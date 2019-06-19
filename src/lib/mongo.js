@@ -1,5 +1,5 @@
 import assert from '@specialblend/assert';
-import { binary, compose, curry, is, map, memoizeWith, mergeRight, pick, pipe } from 'ramda';
+import { curry, map, mergeRight, pick, pipe } from 'ramda';
 import { bindTo, isEmptyOrNil, memoizeAll, pipeSpec } from './common';
 
 /**

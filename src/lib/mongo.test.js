@@ -4,7 +4,7 @@ import withCollection from './mongo';
 import { __EMPTY__, __NIL__, __NOT_FUNCTION__, __NOT_STRING__ } from '../../__mocks__/support';
 import { __MONGO_COLLECTION_FACTORY__, __MONGO_DRIVER__, __MONGO_CLIENT_ERR__ } from '../../__mocks__/driver';
 
-const collectionName = '__test_collection_kmoubgzwqzexctg'
+const collectionName = '__test_collection_kmoubgzwqzexctg';
 
 describe('withCollection', () => {
     test('is a function', () => {
