@@ -88,15 +88,24 @@ const validateCollectionName = function validateCollectionName(name) {
  * @param {object} target target
  * @returns {object} target
  */
-const setupPipe = target => mergeRight(target, {
+const setFluentMethods = target => mergeRight(target, {
     pipe: (...pipeline) => pipeSpecs(target, pipeline),
 });
+
+/**
+ * Setup pipeline functionality on collection
+ * @type {Function|*}
+ */
+const setupPipeline = pipe(explicateNativeMethods, setFluentMethods);
 
 /**
  * create mongo-pipe object
  * @type {function}
  */
-const connect = pipe(call, then(pipe(explicateNativeMethods, setupPipe)));
+const connect = pipe(
+    call,
+    then(setupPipeline),
+);
 
 /**
  * mongo-pipe constructor
