@@ -1,9 +1,9 @@
-import moduleESM from './dist/main.esm';
-import moduleCJS from './dist/main.cjs';
+import moduleCJS from './dist/mongo.cjs';
+import moduleESM from './dist/mongo.esm';
 
 describe('main', () => {
     test('exports are importable', () => {
-        expect(moduleESM).toBeFunction();
         expect(moduleCJS).toBeFunction();
+        expect(moduleESM).toBeFunction();
     });
 });
