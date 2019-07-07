@@ -1,14 +1,24 @@
 import { concat, evolve, lensProp, map, set } from 'ramda';
 import { pipeSpec } from './common';
-import withCollection from './mongo';
-import { __MONGO_COLLECTION_FACTORY__, __MONGO_DRIVER__ } from '../../__mocks__/driver';
+import mongo from './mongo';
 import { nativeSpecMethods } from './config';
+import { __MONGO_COLLECTION__ } from '../../__mocks__/mongodb';
+
+const url = 'mongodb.example.com';
+const options = 'MongoClient.connect(options)';
+const databaseName = 'test.database.name';
 
 describe('pipeSpec', () => {
     test('is a function', () => {
         expect(pipeSpec).toBeFunction();
     });
     describe('works as expected', () => {
+        let client = null;
+
+        beforeAll(async() => {
+            client = await mongo(url, options);
+        });
+
         const testValueFoo = 'test.value.foo.qwerty';
         const testValueBar = 'test.value.bar.asdfgh';
         const testValueBaz = 'test.value.baz.zxcvbn';
@@ -35,7 +45,7 @@ describe('pipeSpec', () => {
             describe('when called', () => {
                 let pipedCollection = null;
                 beforeAll(async() => {
-                    const collection = await withCollection(__MONGO_COLLECTION_FACTORY__, 'test.collection.single.spec.pipeline.zsexrdctfvgybuhijnm');
+                    const collection = client(databaseName, 'test.collection.single.spec.pipeline.zsexrdctfvgybuhijnm');
                     pipedCollection = collection.pipe(...singleSpecPipeline);
                 });
                 test('returns an resolved object', () => {
@@ -56,17 +66,17 @@ describe('pipeSpec', () => {
                         let response = null;
                         const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
+                            __MONGO_COLLECTION__.insertOne.mockResolvedValueOnce(testResult);
                             response = await pipedCollection.insertOne(testPayload);
                         });
                         test('calls native Mongo.insertOne with transformed payload', () => {
-                            expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
+                            expect(__MONGO_COLLECTION__.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
                                 foo: testValueFoo,
                             });
                         });
                         test('returns expected testResult', () => {
-                            expect(response).toMatchObject({ value: testResult });
+                            expect(response).toMatchObject(testResult);
                         });
                     });
                 });
@@ -74,17 +84,17 @@ describe('pipeSpec', () => {
                     let response = null;
                     const testResult = { hgfhgfhfghgf: 'qeawfsg' };
                     beforeAll(async() => {
-                        __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
+                        __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(testResult);
                         response = await pipedCollection.updateOne(testPayload);
                     });
                     test('calls native Mongo.updateOne with transformed payload', async() => {
-                        expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                        expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({
                             ...testPayload,
                             bar: testValueBar,
                         });
                     });
                     test('returns expected result', () => {
-                        expect(response).toMatchObject({ value: testResult });
+                        expect(response).toMatchObject(testResult);
                     });
                 });
             });
@@ -105,7 +115,7 @@ describe('pipeSpec', () => {
             describe('when called', () => {
                 let pipedCollection = null;
                 beforeAll(async() => {
-                    const collection = await withCollection(__MONGO_COLLECTION_FACTORY__, 'test.collection.multi.spec.pipeline.zewsxrdtcfvgyubin');
+                    const collection = client(databaseName, 'test.collection.multi.spec.pipeline.zewsxrdtcfvgyubin');
                     pipedCollection = collection.pipe(...multiSpecPipeline);
                 });
                 test('returns an resolved object', () => {
@@ -120,17 +130,17 @@ describe('pipeSpec', () => {
                         let response = null;
                         const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_DRIVER__.insertOne.mockResolvedValueOnce(testResult);
+                            __MONGO_COLLECTION__.insertOne.mockResolvedValueOnce(testResult);
                             response = await pipedCollection.insertOne(testPayload);
                         });
                         test('calls native Mongo.insertOne with transformed payload', () => {
-                            expect(__MONGO_DRIVER__.insertOne).toHaveBeenCalledWith({
+                            expect(__MONGO_COLLECTION__.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
                                 foo: testValueFoo,
                             });
                         });
                         test('returns expected testResult', () => {
-                            expect(response).toMatchObject({ value: testResult });
+                            expect(response).toMatchObject(testResult);
                         });
                     });
                 });
@@ -138,17 +148,17 @@ describe('pipeSpec', () => {
                     let response = null;
                     const testResult = { hgfhgfhfghgf: 'qeawfsg' };
                     beforeAll(async() => {
-                        __MONGO_DRIVER__.updateOne.mockResolvedValueOnce(testResult);
+                        __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(testResult);
                         response = await pipedCollection.updateOne(testPayload);
                     });
                     test('calls native Mongo.updateOne with transformed payload', async() => {
-                        expect(__MONGO_DRIVER__.updateOne).toHaveBeenCalledWith({
+                        expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({
                             ...testPayload,
                             baz: testValueBaz,
                         });
                     });
                     test('returns expected result', () => {
-                        expect(response).toMatchObject({ value: testResult });
+                        expect(response).toMatchObject(testResult);
                     });
                 });
             });

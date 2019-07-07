@@ -13,7 +13,7 @@ const explicateNativeMethods = converge(map, [bindTo, pick(nativeSpecMethods)]);
 
 const setupCollection = pipe(explicateNativeMethods, withHelperMethods);
 
-const connect = memoizeAll(MongoClient.client);
+const connect = memoizeAll(MongoClient.connect);
 
 const withConnection = curry(
     (connection, dbName, collectionName) =>

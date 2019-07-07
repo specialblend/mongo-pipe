@@ -1,111 +1,92 @@
-import { keys, prop } from 'ramda';
+import { MongoClient } from 'mongodb';
+import mongo from './mongo';
+import { __MONGO_COLLECTION__, __MONGO_CONNECTION__, __MONGO_DATABASE__ } from '../../__mocks__/mongodb';
+import { nativeSpecMethods } from './config';
 
-import withCollection from './mongo';
-import { __EMPTY__, __NIL__, __NOT_FUNCTION__, __NOT_STRING__ } from '../../__mocks__/support';
-import { __MONGO_COLLECTION_FACTORY__, __MONGO_DRIVER__, __MONGO_CLIENT_ERR__ } from '../../__mocks__/driver';
+const url = 'mongodb.example.com';
+const options = 'MongoClient.connect(options)';
+const databaseName = 'test.database.name';
+const collectionName = 'test.collection.name';
 
-const collectionName = '__test_collection_kmoubgzwqzexctg';
-
-describe('withCollection', () => {
+describe('mongo', () => {
     test('is a function', () => {
-        expect(withCollection).toBeFunction();
+        expect(mongo).toBeFunction();
     });
     describe('when called', () => {
-        let collection = null;
+        let withDatabase = null;
         beforeAll(async() => {
-            collection = await withCollection(__MONGO_COLLECTION_FACTORY__, collectionName);
+            withDatabase = await mongo(url, options);
         });
-        describe('class methods', () => {
-            describe.each(keys(__MONGO_DRIVER__))('%p', method => {
-                test('is a function', () => {
-                    expect(collection).toHaveProperty(method, expect.any(Function));
-                });
-                test('calls native method with expected parameters', async() => {
-                    const payload = Symbol(`collection.${method}.payload`);
-                    const props = { payload };
-                    await collection[method](props);
-                    expect(prop(method, __MONGO_DRIVER__)).toHaveBeenCalledWith({ payload });
-                });
+        test('calls MongoClient.connect with expected parameters', () => {
+            expect(MongoClient.connect).toHaveBeenCalledWith(url, options);
+        });
+        describe('resolves to a function', () => {
+            test('*', () => {
+                expect(withDatabase).toBeFunction();
             });
-        });
-        describe('throws expected assertion errors', () => {
-            describe('when factory', () => {
-                describe('is empty or nil', () => {
-                    test.each([...__EMPTY__, ...__NIL__])('factory=%p', async factory => {
-                        expect.assertions(1);
-                        try {
-                            await withCollection(factory, null);
-                        } catch (err) {
-                            expect(err.message).toMatch(/`factory` cannot be empty or nil/);
-                        }
+            describe('when called', () => {
+                let withCollection = null;
+                beforeAll(() => {
+                    withCollection = withDatabase(databaseName);
+                });
+                describe('returns a function', () => {
+                    test('*', () => {
+                        expect(withCollection).toBeFunction();
+                    });
+                    describe('when called', () => {
+                        let collection = null;
+                        beforeAll(() => {
+                            collection = withCollection(collectionName);
+                        });
+                        test('calls connection.db with expected parameters', () => {
+                            expect(__MONGO_CONNECTION__.db).toHaveBeenCalledWith(databaseName);
+                        });
+                        test('calls db.collection with expected parameters', () => {
+                            expect(__MONGO_DATABASE__.collection).toHaveBeenCalledWith(collectionName);
+                        });
+                        describe('returns an object', () => {
+                            test('*', () => {
+                                expect(collection).toBeObject();
+                            });
+                            describe('with expected spec', () => {
+                                describe.each(nativeSpecMethods)('%p', methodName => {
+                                    test('is a function', () => {
+                                        expect(collection).toHaveProperty(methodName, expect.any(Function));
+                                    });
+                                    describe('when called', () => {
+                                        let result = null;
+                                        let handler = null;
+                                        const payload0 = Symbol('payload0');
+                                        const payload1 = Symbol('payload1');
+                                        const payload2 = Symbol('payload2');
+                                        const response = Symbol('response');
+                                        const driver = __MONGO_COLLECTION__[methodName];
+                                        beforeAll(async() => {
+                                            handler = collection[methodName];
+                                            driver.mockClear();
+                                            driver.mockResolvedValueOnce(response);
+                                            result = await handler(payload0, payload1, payload2);
+                                        });
+                                        test('calls Mongo driver with expected parameters', async() => {
+                                            expect(driver).toHaveBeenCalledWith(payload0, payload1, payload2);
+                                        });
+                                        test('returns result of calling Mongo driver', () => {
+                                            expect(result).toBe(response);
+                                        });
+                                    });
+                                });
+                            });
+                            test('with helper methods', () => {
+                                expect(collection).toHaveProperty('findOneById', expect.any(Function));
+                                expect(collection).toHaveProperty('updateOneById', expect.any(Function));
+                                expect(collection).toHaveProperty('createOne', expect.any(Function));
+                                expect(collection).toHaveProperty('upsertOneById', expect.any(Function));
+                                expect(collection).toHaveProperty('removeOneById', expect.any(Function));
+                            });
+                        });
                     });
                 });
-                describe('is empty or nil', () => {
-                    test.each(__NOT_FUNCTION__)('factory=%p', async factory => {
-                        expect.assertions(1);
-                        try {
-                            await withCollection(factory, null);
-                        } catch (err) {
-                            expect(err.message).toMatch(/`factory` must be function/);
-                        }
-                    });
-                });
             });
-            describe('when collection name', () => {
-                describe('is empty or nil', () => {
-                    test.each([...__EMPTY__, ...__NIL__])('name=%p', async name => {
-                        expect.assertions(1);
-                        try {
-                            await withCollection(__MONGO_COLLECTION_FACTORY__, name);
-                        } catch (err) {
-                            expect(err.message).toMatch(/collection `name` cannot be empty or nil/);
-                        }
-                    });
-                });
-                describe('is not string', () => {
-                    test.each(__NOT_STRING__)('name=%p', async name => {
-                        expect.assertions(1);
-                        try {
-                            await withCollection(__MONGO_COLLECTION_FACTORY__, name);
-                        } catch (err) {
-                            expect(err.message).toMatch(/collection `name` must be string/);
-                        }
-                    });
-                });
-            });
-        });
-        describe('bubbles expected error', () => {
-            test('on rejected factory', async() => {
-                expect.assertions(1);
-                __MONGO_COLLECTION_FACTORY__.mockRejectedValueOnce(__MONGO_CLIENT_ERR__);
-                try {
-                    await withCollection(__MONGO_COLLECTION_FACTORY__, '__test_collection_qawsedrftgyhujikolp__');
-                } catch (err) {
-                    expect(err).toBe(__MONGO_CLIENT_ERR__);
-                }
-            });
-            test('on rejected native driver call', async() => {
-                expect.assertions(1);
-                const payload = 'exrtcyvubinomp,[.';
-                const expectedErr = new Error('zwexsrctvybunimor');
-                __MONGO_DRIVER__.insertOne.mockRejectedValueOnce(expectedErr);
-                try {
-                    await collection.insertOne(payload);
-                } catch (err) {
-                    expect(err).toBe(expectedErr);
-                }
-            });
-        });
-        test('memoizes correctly', async() => {
-            const secondCollection = await withCollection(__MONGO_COLLECTION_FACTORY__, collectionName);
-            const differentCollection = await withCollection(__MONGO_COLLECTION_FACTORY__, 'kfdsgukfdsguifsagiufdsugi2345e6r7ttcysvh');
-            expect(secondCollection).toBe(collection);
-            expect(differentCollection).not.toBe(collection);
-        });
-        test('is curried', async() => {
-            const createThirdCollection = withCollection(__MONGO_COLLECTION_FACTORY__);
-            const thirdCollection = await createThirdCollection(collectionName);
-            expect(thirdCollection).toBe(collection);
         });
     });
 });
