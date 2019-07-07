@@ -1,8 +1,8 @@
 import { concat, evolve, lensProp, map, set } from 'ramda';
 import { pipeSpec } from './common';
 import mongo from './mongo';
-import { nativeSpecMethods } from './config';
-import { __MONGO_COLLECTION__ } from '../../__mocks__/mongodb';
+import { nativeSpecMethods } from './manifest';
+import { __MONGO_COLLECTION__ } from '../__mocks__/mongodb';
 
 const url = 'mongodb.example.com';
 const options = 'MongoClient.connect(options)';

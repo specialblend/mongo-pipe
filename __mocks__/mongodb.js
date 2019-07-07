@@ -1,5 +1,5 @@
-import { nativeSpecMethods } from '../src/lib/config';
 import { always, length, times, zipObj } from 'ramda';
+import { nativeSpecMethods } from '../src/manifest';
 
 export const __MONGO_COLLECTION__ = zipObj(nativeSpecMethods, times(() => jest.fn(), length(nativeSpecMethods)));
 

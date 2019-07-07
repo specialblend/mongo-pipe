@@ -1,7 +1,3 @@
-/**
- * List of native Mongo collection methods to explicate
- * @type {[string]}
- */
 export const nativeSpecMethods = [
     'aggregate',
     'bulkWrite',

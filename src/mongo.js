@@ -1,8 +1,9 @@
-import { converge, curry, map, pick, pipe, then } from 'ramda';
-import { bindTo, memoizeAll } from './common';
 import { MongoClient } from 'mongodb';
-import { nativeSpecMethods } from './config';
+import { converge, curry, map, pick, pipe, then } from 'ramda';
+
 import withHelperMethods from './helpers';
+import { bindTo, memoizeAll } from './common';
+import { nativeSpecMethods } from './manifest';
 
 /**
  * Explicitly copy native methods

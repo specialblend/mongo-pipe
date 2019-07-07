@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import mongo from './mongo';
-import { __MONGO_COLLECTION__, __MONGO_CONNECTION__, __MONGO_DATABASE__ } from '../../__mocks__/mongodb';
-import { nativeSpecMethods } from './config';
+import { nativeSpecMethods } from './manifest';
+import { __MONGO_COLLECTION__, __MONGO_CONNECTION__, __MONGO_DATABASE__ } from '../__mocks__/mongodb';
 
 const url = 'mongodb.example.com';
 const options = 'MongoClient.connect(options)';
