@@ -15,5 +15,4 @@ export default
             format: 'esm',
         },
     ],
-    plugins: ['rollup-plugin-json'],
 };
