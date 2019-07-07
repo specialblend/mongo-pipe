@@ -1,7 +1,8 @@
 import { concat, evolve, lensProp, map, set } from 'ramda';
 import { pipeSpec } from './common';
-import withCollection, { nativeSpecMethods } from './mongo';
+import withCollection from './mongo';
 import { __MONGO_COLLECTION_FACTORY__, __MONGO_DRIVER__ } from '../../__mocks__/driver';
+import { nativeSpecMethods } from './config';
 
 describe('pipeSpec', () => {
     test('is a function', () => {
