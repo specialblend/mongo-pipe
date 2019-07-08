@@ -98,7 +98,7 @@ export * from '@specialblend/mongo-pipe/mock/mongo-pipe';
 ```ecmascript 6
 // __mocks__/@specialblend/mongo-pipe.test.js
 
-import mongo, { MockCollection, MockHandler} from '@specialblend/mongo-pipe';
+import mongo, { MockCollection, MockHandler } from '@specialblend/mongo-pipe';
 
 test('foo', async() => {
     const withDB = await mongo('mongodb.example.com')
