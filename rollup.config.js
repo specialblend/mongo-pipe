@@ -24,4 +24,12 @@ export default [
             format: 'cjs',
         },
     },
+    {
+        input: '__mocks__/mongo-pipe.js',
+        output: {
+            name: 'mongo-pipe',
+            file: 'mock/mongo-pipe.js',
+            format: 'cjs',
+        },
+    },
 ];
