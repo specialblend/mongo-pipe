@@ -42,7 +42,7 @@ async function main() {
 
 - `all([query])`: alias for `find` that casts result to Array
 - `createOne(props)`: insert object into collection and return resulting object
-- `findOneById({ id })`: find object by ID, passing an object containing an `id` key
+- `findOneById(props)`: find object where ID is equal to `props.id`
 - `updateOneById(props)`: update object with props where ID is equal to `props.id`
 - `upsertOneById(props)`: upsert object where ID is equal to `props.id`
 - `removeOneById(props)`: remove object where ID is equal to `props.id`
