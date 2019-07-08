@@ -54,3 +54,63 @@ async function main() {
 
 ### testing/mocking
 
+This package exports two Jest mocks for your convenience.
+
+#### mongodb
+
+```ecmascript 6
+// __mocks__/mongodb.js
+
+export * from '@specialblend/mongo-pipe/mock/mongodb';
+```
+
+```ecmascript 6
+// __mocks__/mongodb.test.js
+
+import { MongoClient, MockCollection, MockConnection, MockDatabase } from 'mongodb';
+
+test('foo', async() => {
+    const collectionFoo = await MongoClient
+        .connect('mongodb.example.com')
+        .then(connection => connection.db('test.db.name').collection('test.collection'));
+
+    expect(MockConnection.db).toHaveBeenCalledWith('test.db.name');
+
+    expect(MockDatabase.collection).toHaveBeenCalledWith('test.collection');
+
+    const mockPayload = Symbol('mock:payload');
+
+    await collectionFoo.insertOne(mockPayload);
+
+    expect(MockCollection.insertOne).toHaveBeenCalledWith(mockPayload);
+});
+
+```
+
+#### mongo-pipe
+
+```ecmascript 6
+// __mocks__/@specialblend/mongo-pipe.js
+
+export * from '@specialblend/mongo-pipe/mock/mongo-pipe';
+```
+
+```ecmascript 6
+// __mocks__/@specialblend/mongo-pipe.test.js
+
+import mongo, { MockCollection, MockHandler} from '@specialblend/mongo-pipe';
+
+test('foo', async() => {
+    const withDB = await mongo('mongodb.example.com')
+    const collectionFoo = withDB('test.db.name', 'test.collection')
+
+    expect(MockHandler).toHaveBeenCalledWith('test.db.name', 'test.collection');
+
+    const mockPayload = Symbol('mock:payload');
+
+    await collectionFoo.createOne(mockPayload);
+
+    expect(MockCollection.createOne).toHaveBeenCalledWith(mockPayload);
+});
+
+```
