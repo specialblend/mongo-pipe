@@ -13,7 +13,8 @@
     "prepublishOnly": "npm run build"
   },
   "files": [
-    "dist"
+    "dist",
+    "mock"
   ],
   "name": "@specialblend/mongo-pipe",
   "description": "functional utility for mongo",
