@@ -14,6 +14,7 @@ module.exports = {
     coveragePathIgnorePatterns: [
         '<rootDir>/node_modules/',
         '<rootDir>/dist/',
+        '<rootDir>/mock/',
         '<rootDir>/coverage/',
         '<rootDir>/jest.config.js',
         '<rootDir>/rollup.config.js',
