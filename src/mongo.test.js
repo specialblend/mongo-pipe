@@ -1,3 +1,5 @@
+/* eslint-disable max-nested-callbacks */
+
 import { MongoClient } from 'mongodb';
 import mongo from './mongo';
 import { nativeSpecMethods } from './manifest';

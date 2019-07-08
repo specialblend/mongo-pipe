@@ -2,7 +2,7 @@
 
 require('jest-extended');
 
-jest.mock('mongodb')
+jest.mock('mongodb');
 
 const { log, info, debug, warn, error } = console;
 

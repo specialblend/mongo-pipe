@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+
 import mongo from './mongo';
 import { __MONGO_COLLECTION__ } from '../__mocks__/mongodb';
 import { withSetProps } from './helpers';

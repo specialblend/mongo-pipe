@@ -4,7 +4,6 @@ import {
     curry,
     flatten,
     head,
-    invoker,
     is,
     map,
     objOf,
