@@ -9,46 +9,60 @@ import {
     map,
     objOf,
     omit,
-    or,
+    pathSatisfies,
     pick,
     pipe,
     prop,
-    then, unapply,
+    then,
+    unapply,
     unless,
     useWith,
     when,
 } from 'ramda';
 import { pipeSpecs } from './common';
 
-const eitherAsync = curry((primary, secondary) => async(...payload) => or(await primary(...payload), secondary(...payload)));
 const isArray = Array.isArray;
+const isOk = pathSatisfies(Boolean, ['result', 'ok']);
 const flattenChild = when(is(Object), unless(isArray, flatten));
 const flattenChildren = map(flattenChild);
-const getOpsData = pipe(prop('ops'), head);
+const getOps = prop('ops');
+const getFirstOp = pipe(getOps, head);
 const withId = pick(['id']);
 const withoutId = omit(['id']);
 const withSet = objOf('$set');
 const withSetProps = compose(withSet, flattenChildren, withoutId);
-const toArray = invoker(0, 'toArray');
+const toArray = Array.from;
+
+const eitherAsync = curry(
+    (primary, secondary) =>
+        async(...payload) => {
+            const response = await primary(...payload);
+            if (isOk(response)) {
+                return response;
+            }
+            return secondary(...payload);
+        }
+);
 
 const withHelperMethods = collection => {
     const { find, findOne, updateOne, insertOne, remove } = collection;
 
+    const all = pipe(find, then(toArray));
+    const createOne = pipe(insertOne, then(getFirstOp));
     const findOneById = useWith(findOne, [withId]);
-    const updateOneById = converge(updateOne, [withId, withSetProps]);
-    const createOne = pipe(insertOne, then(getOpsData));
-    const upsertOneById = eitherAsync(updateOne, createOne);
     const removeOneById = pipe(withId, remove);
-    const all = pipe(find, toArray);
+    const updateOneById = converge(updateOne, [withId, withSetProps]);
+    const upsertOneById = eitherAsync(updateOne, createOne);
+
     const pipeTransformers = unapply(pipeSpecs(collection));
 
     return Object.assign(collection, {
+        all,
+        createOne,
         findOneById,
         updateOneById,
-        createOne,
         upsertOneById,
         removeOneById,
-        all,
         pipe: pipeTransformers,
     });
 };
