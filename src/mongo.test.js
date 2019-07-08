@@ -90,4 +90,18 @@ describe('mongo', () => {
             });
         });
     });
+    test('memoizes correctly', async() => {
+        const withDB = await mongo(url);
+        const dbName = 'test.db.name-ercftgvhb';
+        const colName = 'test.collection.name-wserdtyuhi';
+        const collection0 = withDB(dbName, colName);
+        const collection1 = withDB(dbName, colName);
+        const collection2 = withDB('foo-rxctyvubhjnk', colName);
+        const collection3 = withDB(dbName, 'zdrxhjbknl');
+        const collection4 = withDB(dbName, 'zdrxhjbknl');
+        expect(collection0).toBe(collection1);
+        expect(collection0).not.toBe(collection2);
+        expect(collection0).not.toBe(collection3);
+        expect(collection4).toBe(collection3);
+    });
 });

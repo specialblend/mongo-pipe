@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { converge, curry, map, pick, pipe, then } from 'ramda';
+import { converge, curry, map, memoizeWith, pick, pipe, then } from 'ramda';
 
 import withHelperMethods from './helpers';
 import { bindTo, memoizeAll } from './common';
@@ -23,11 +23,10 @@ const setupCollection = pipe(explicateNativeMethods, withHelperMethods);
  */
 const connect = memoizeAll(MongoClient.connect);
 
-/**
- * Handle Mongo connection
- * @type {Function}
- */
-const withConnection = curry(
+const makeCollection = memoizeWith(
+    (connection, dbName, collectionName) => [
+        connection, dbName, collectionName,
+    ],
     (connection, dbName, collectionName) =>
         setupCollection(
             connection
@@ -35,6 +34,12 @@ const withConnection = curry(
                 .collection(collectionName),
         ),
 );
+
+/**
+ * Handle Mongo connection
+ * @type {Function}
+ */
+const withConnection = curry(makeCollection);
 
 /**
  * Connect to Mongo and return a curried connection handler
