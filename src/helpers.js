@@ -30,7 +30,7 @@ const getFirstOp = pipe(getOps, head);
 const withId = pick(['id']);
 const withoutId = omit(['id']);
 const withSet = objOf('$set');
-const withSetProps = compose(withSet, flattenChildren, withoutId);
+export const withSetProps = compose(withSet, flattenChildren, withoutId);
 const toArray = Array.from;
 
 const eitherAsync = curry(
@@ -51,8 +51,9 @@ const withHelperMethods = collection => {
     const createOne = pipe(insertOne, then(getFirstOp));
     const findOneById = useWith(findOne, [withId]);
     const removeOneById = pipe(withId, remove);
-    const updateOneById = converge(updateOne, [withId, withSetProps]);
-    const upsertOneById = eitherAsync(updateOne, createOne);
+    const updatePropsWithId = converge(updateOne, [withId, withSetProps]);
+    const updateOneById = pipe(updatePropsWithId, then(getFirstOp));
+    const upsertOneById = pipe(eitherAsync(updatePropsWithId, insertOne), then(getFirstOp));
 
     const pipeTransformers = unapply(pipeSpecs(collection));
 

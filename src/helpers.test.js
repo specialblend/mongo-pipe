@@ -1,5 +1,6 @@
 import mongo from './mongo';
 import { __MONGO_COLLECTION__ } from '../__mocks__/mongodb';
+import { withSetProps } from './helpers';
 
 const fromArray = function *(data) {
     for (const i of data) {
@@ -114,6 +115,147 @@ describe('helper method', () => {
                 } catch (err) {
                     expect(err).toBe(error);
                 }
+            });
+        });
+    });
+    describe('updateOneById', () => {
+        test('is a function', () => {
+            expect(collection.updateOneById).toBeFunction();
+        });
+        describe('when called', () => {
+            let result = null;
+            const id = 'id:updateOneById';
+            const foo = 'foo:updateOneById';
+            const bar = 'bar:updateOneById';
+            const baz = 'baz:updateOneById';
+            const data = Symbol('data:updateOneById');
+            const response = {
+                result: {
+                    ok: 1,
+                    no: 1,
+                },
+                ops: [data],
+            };
+            const payload = { id, foo, bar, baz };
+            const expectedProps = withSetProps(payload);
+            beforeAll(async() => {
+                __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(response);
+                result = await collection.updateOneById(payload);
+            });
+            test('calls mongo.updateOne with expected payload', () => {
+                expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({ id }, expectedProps);
+            });
+            test('returns data result of calling mongo.updateOne', () => {
+                expect(result).toBe(data);
+            });
+            test('bubbles errors', async() => {
+                const error = new Error('err:updateOneById');
+                __MONGO_COLLECTION__.updateOne.mockRejectedValueOnce(error);
+                expect.assertions(1);
+                try {
+                    await collection.updateOneById(payload);
+                } catch (err) {
+                    expect(err).toBe(error);
+                }
+            });
+        });
+    });
+    describe('upsertOneById', () => {
+        test('is a function', () => {
+            expect(collection.upsertOneById).toBeFunction();
+        });
+        describe('when called', () => {
+            describe('with existing object', () => {
+                let result = null;
+                const id = 'id:upsertOneById';
+                const foo = 'foo:upsertOneById';
+                const bar = 'bar:upsertOneById';
+                const baz = 'baz:upsertOneById';
+                const data = Symbol('data:upsertOneById');
+                const response = {
+                    result: {
+                        ok: 1,
+                        no: 1,
+                    },
+                    ops: [data],
+                };
+                const payload = { id, foo, bar, baz };
+                const expectedProps = withSetProps(payload);
+                beforeAll(async() => {
+                    __MONGO_COLLECTION__.insertOne.mockClear();
+                    __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(response);
+                    result = await collection.upsertOneById(payload);
+                });
+                test('calls mongo.updateOne with expected payload', () => {
+                    expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({ id }, expectedProps);
+                });
+                test('does not call mongo.insertOne', () => {
+                    expect(__MONGO_COLLECTION__.insertOne).not.toHaveBeenCalled();
+                });
+                test('returns data result of calling mongo.updateOne', () => {
+                    expect(result).toBe(data);
+                });
+                test('bubbles errors', async() => {
+                    const error = new Error('err:upsertOneById');
+                    __MONGO_COLLECTION__.updateOne.mockRejectedValueOnce(error);
+                    expect.assertions(1);
+                    try {
+                        await collection.upsertOneById(payload);
+                    } catch (err) {
+                        expect(err).toBe(error);
+                    }
+                });
+            });
+            describe('with non-existent object', () => {
+                let result = null;
+                const id = 'id:upsertOneById';
+                const foo = 'foo:upsertOneById';
+                const bar = 'bar:upsertOneById';
+                const baz = 'baz:upsertOneById';
+                const data = Symbol('data:upsertOneById');
+                const updateOneResponse = {
+                    result: {
+                        ok: 0,
+                        no: 0,
+                    },
+                    ops: [],
+                };
+                const insertOneResponse = {
+                    result: {
+                        ok: 1,
+                        no: 1,
+                    },
+                    ops: [data],
+                };
+                const payload = { id, foo, bar, baz };
+                const expectedUpdateProps = withSetProps(payload);
+                beforeAll(async() => {
+                    __MONGO_COLLECTION__.insertOne.mockClear();
+                    __MONGO_COLLECTION__.updateOne.mockClear();
+                    __MONGO_COLLECTION__.insertOne.mockResolvedValueOnce(insertOneResponse);
+                    __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(updateOneResponse);
+                    result = await collection.upsertOneById(payload);
+                });
+                test('calls mongo.updateOne with expected payload', () => {
+                    expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({ id }, expectedUpdateProps);
+                });
+                test('calls mongo.insertOne with expected payload', () => {
+                    expect(__MONGO_COLLECTION__.insertOne).toHaveBeenCalledWith(payload);
+                });
+                test('returns data result of calling mongo.insertOne', () => {
+                    expect(result).toBe(data);
+                });
+                test('bubbles errors', async() => {
+                    const error = new Error('err:upsertOneById');
+                    __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(updateOneResponse);
+                    __MONGO_COLLECTION__.insertOne.mockRejectedValueOnce(error);
+                    expect.assertions(1);
+                    try {
+                        await collection.upsertOneById(payload);
+                    } catch (err) {
+                        expect(err).toBe(error);
+                    }
+                });
             });
         });
     });
