@@ -5,11 +5,8 @@ import {
     call,
     compose,
     curry,
-    either,
     evolve,
     identity,
-    isEmpty,
-    isNil,
     map,
     memoizeWith,
     pipe,
@@ -22,12 +19,6 @@ import {
  * @type {function}
  */
 export const memoizeAll = memoizeWith(unapply(identity));
-
-/**
- * Returns true if expression is empty or nil (null or undefined)
- * @type {function}
- */
-export const isEmptyOrNil = either(isEmpty, isNil);
 
 /**
  * Bind function to provided object

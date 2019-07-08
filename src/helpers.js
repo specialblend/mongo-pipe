@@ -29,8 +29,9 @@ const getFirstOp = pipe(getOps, head);
 const withId = pick(['id']);
 const withoutId = omit(['id']);
 const withSet = objOf('$set');
-export const withSetProps = compose(withSet, flattenChildren, withoutId);
 const toArray = Array.from;
+
+export const withSetProps = compose(withSet, flattenChildren, withoutId);
 
 const eitherAsync = curry(
     (primary, secondary) =>
