@@ -1,4 +1,4 @@
-import { always, length, times, zipObj } from 'ramda';
+import { always, curryN, length, times, zipObj } from 'ramda';
 
 const nativeSpecMethods = [
     'aggregate',
@@ -50,8 +50,24 @@ const nativeSpecMethods = [
     'watch',
 ];
 
-export const MockCollection = zipObj(nativeSpecMethods, times(() => jest.fn(), length(nativeSpecMethods)));
-export const MockDatabase = { collection: jest.fn(always(MockCollection)) };
-export const MockConnection = { db: jest.fn(always(MockDatabase)) };
-export const MockClient = { connect: jest.fn(async() => MockConnection) };
-export const MongoClient = MockClient;
+const helperMethods = [
+    'all',
+    'createOne',
+    'findOneById',
+    'updateOneById',
+    'upsertOneById',
+    'removeOneById',
+];
+
+const mockedMethods = [
+    ...nativeSpecMethods,
+    ...helperMethods,
+];
+
+export const MockCollection = zipObj(mockedMethods, times(() => jest.fn(), length(mockedMethods)));
+
+export const MockHandler = jest.fn(curryN(2, always(MockCollection)));
+
+const mongo = jest.fn(async() => MockHandler);
+
+export default mongo;

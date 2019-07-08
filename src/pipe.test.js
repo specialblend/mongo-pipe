@@ -2,7 +2,7 @@ import { concat, evolve, lensProp, map, set } from 'ramda';
 import { pipeSpec } from './common';
 import mongo from './mongo';
 import { nativeSpecMethods } from './manifest';
-import { __MONGO_COLLECTION__ } from '../__mocks__/mongodb';
+import { MockCollection } from '../__mocks__/mongodb';
 
 const url = 'mongodb.example.com';
 const options = 'MongoClient.connect(options)';
@@ -66,11 +66,11 @@ describe('pipeSpec', () => {
                         let response = null;
                         const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_COLLECTION__.insertOne.mockResolvedValueOnce(testResult);
+                            MockCollection.insertOne.mockResolvedValueOnce(testResult);
                             response = await pipedCollection.insertOne(testPayload);
                         });
                         test('calls native Mongo.insertOne with transformed payload', () => {
-                            expect(__MONGO_COLLECTION__.insertOne).toHaveBeenCalledWith({
+                            expect(MockCollection.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
                                 foo: testValueFoo,
                             });
@@ -84,11 +84,11 @@ describe('pipeSpec', () => {
                     let response = null;
                     const testResult = { hgfhgfhfghgf: 'qeawfsg' };
                     beforeAll(async() => {
-                        __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(testResult);
+                        MockCollection.updateOne.mockResolvedValueOnce(testResult);
                         response = await pipedCollection.updateOne(testPayload);
                     });
                     test('calls native Mongo.updateOne with transformed payload', async() => {
-                        expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({
+                        expect(MockCollection.updateOne).toHaveBeenCalledWith({
                             ...testPayload,
                             bar: testValueBar,
                         });
@@ -130,11 +130,11 @@ describe('pipeSpec', () => {
                         let response = null;
                         const testResult = { jutyhbre: 'wzaerxtcyvubinom' };
                         beforeAll(async() => {
-                            __MONGO_COLLECTION__.insertOne.mockResolvedValueOnce(testResult);
+                            MockCollection.insertOne.mockResolvedValueOnce(testResult);
                             response = await pipedCollection.insertOne(testPayload);
                         });
                         test('calls native Mongo.insertOne with transformed payload', () => {
-                            expect(__MONGO_COLLECTION__.insertOne).toHaveBeenCalledWith({
+                            expect(MockCollection.insertOne).toHaveBeenCalledWith({
                                 ...testPayload,
                                 foo: testValueFoo,
                             });
@@ -148,11 +148,11 @@ describe('pipeSpec', () => {
                     let response = null;
                     const testResult = { hgfhgfhfghgf: 'qeawfsg' };
                     beforeAll(async() => {
-                        __MONGO_COLLECTION__.updateOne.mockResolvedValueOnce(testResult);
+                        MockCollection.updateOne.mockResolvedValueOnce(testResult);
                         response = await pipedCollection.updateOne(testPayload);
                     });
                     test('calls native Mongo.updateOne with transformed payload', async() => {
-                        expect(__MONGO_COLLECTION__.updateOne).toHaveBeenCalledWith({
+                        expect(MockCollection.updateOne).toHaveBeenCalledWith({
                             ...testPayload,
                             baz: testValueBaz,
                         });

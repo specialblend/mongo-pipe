@@ -1,9 +1,8 @@
 /* eslint-disable max-nested-callbacks */
 
-import { MongoClient } from 'mongodb';
+import { MongoClient, MockCollection, MockConnection, MockDatabase } from 'mongodb';
 import mongo from './mongo';
 import { nativeSpecMethods } from './manifest';
-import { __MONGO_COLLECTION__, __MONGO_CONNECTION__, __MONGO_DATABASE__ } from '../__mocks__/mongodb';
 
 const url = 'mongodb.example.com';
 const options = 'MongoClient.connect(options)';
@@ -41,10 +40,10 @@ describe('mongo', () => {
                             collection = withCollection(collectionName);
                         });
                         test('calls connection.db with expected parameters', () => {
-                            expect(__MONGO_CONNECTION__.db).toHaveBeenCalledWith(databaseName);
+                            expect(MockConnection.db).toHaveBeenCalledWith(databaseName);
                         });
                         test('calls db.collection with expected parameters', () => {
-                            expect(__MONGO_DATABASE__.collection).toHaveBeenCalledWith(collectionName);
+                            expect(MockDatabase.collection).toHaveBeenCalledWith(collectionName);
                         });
                         describe('returns an object', () => {
                             test('*', () => {
@@ -62,7 +61,7 @@ describe('mongo', () => {
                                         const payload1 = Symbol('payload1');
                                         const payload2 = Symbol('payload2');
                                         const response = Symbol('response');
-                                        const driver = __MONGO_COLLECTION__[methodName];
+                                        const driver = MockCollection[methodName];
                                         beforeAll(async() => {
                                             handler = collection[methodName];
                                             driver.mockClear();
