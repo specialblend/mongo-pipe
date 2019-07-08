@@ -1,9 +1,8 @@
 /* eslint-disable max-nested-callbacks */
 
-import { MongoClient } from 'mongodb';
+import { MongoClient, MockCollection, MockConnection, MockDatabase } from 'mongodb';
 import mongo from './mongo';
 import { nativeSpecMethods } from './manifest';
-import { MockCollection, MockConnection, MockDatabase } from '../__mocks__/mongodb';
 
 const url = 'mongodb.example.com';
 const options = 'MongoClient.connect(options)';

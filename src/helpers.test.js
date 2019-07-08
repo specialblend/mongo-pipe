@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 
+import { MockCollection } from 'mongodb';
 import mongo from './mongo';
-import { MockCollection } from '../__mocks__/mongodb';
 import { withSetProps } from './helpers';
 
 const fromArray = function *(data) {
