@@ -1,6 +1,6 @@
 {
-  "main": "dist/main.cjs.js",
-  "module": "dist/main.esm.js",
+  "main": "dist/mongo.cjs.js",
+  "module": "dist/mongo.esm.js",
   "version": "0.0.6",
   "scripts": {
     "test": "jest",
@@ -46,11 +46,15 @@
     "eslint-plugin-babel": "^5.3.0",
     "jest": "^24.8.0",
     "jest-extended": "^0.11.1",
+    "mongodb": "^3.2.7",
     "rollup": "^1.15.3"
   },
   "dependencies": {
     "@specialblend/assert": "0.0.2",
     "moment": "^2.24.0",
     "ramda": "^0.26.1"
+  },
+  "peerDependencies": {
+    "mongodb": "^3.2.7"
   }
 }
