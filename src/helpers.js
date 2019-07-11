@@ -33,7 +33,7 @@ const withoutId = omit(['id']);
 const withSet = objOf('$set');
 const toArray = Array.from;
 
-export const withSetProps = compose(withSet, flattenChildren, withoutId);
+export const withSetProps = compose(withSet, withoutId);
 
 /**
  * Call primary async handler and return
