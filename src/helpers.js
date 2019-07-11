@@ -1,16 +1,15 @@
 /* eslint-disable padded-blocks */
 
 import {
-    always,
+    always, complement,
     converge,
-    curry,
+    curry, either,
     flatten,
     head,
-    is,
+    is, isEmpty, isNil,
     map,
     objOf,
     omit,
-    pathSatisfies,
     pick,
     pipe,
     prop,
@@ -23,7 +22,8 @@ import {
 import { pipeSpecs } from './common';
 
 const isArray = Array.isArray;
-const opIsOk = pathSatisfies(Boolean, ['result', 'ok']);
+const isEmptyOrNil = either(isEmpty, isNil);
+const isNotEmptyOrNil = complement(isEmptyOrNil);
 const flattenChild = when(is(Object), unless(isArray, flatten));
 const flattenChildren = map(flattenChild);
 const getOps = prop('ops');
@@ -78,8 +78,8 @@ const withHelperMethods = collection => {
     const createOne = pipe(insertOne, then(getFirstOp));
     const findOneById = useWith(findOne, [withId]);
     const removeOneById = pipe(withId, remove);
-    const updateOneById = pipe(updatePropsWithId, then(getFirstOp));
-    const upsertOneById = pipe(eitherAsync(opIsOk, updatePropsWithId, insertOne), then(getFirstOp));
+    const updateOneById = pipe(updatePropsWithId, then(prop('value')));
+    const upsertOneById = eitherAsync(isNotEmptyOrNil, updateOneById, createOne);
 
     const pipeTransformers = unapply(pipeSpecs(collection));
 

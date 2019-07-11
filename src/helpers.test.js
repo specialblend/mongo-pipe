@@ -3,6 +3,7 @@
 import { MockCollection } from 'mongodb';
 import mongo from './mongo';
 import { withSetProps } from './helpers';
+import { objOf } from 'ramda';
 
 const fromArray = function *(data) {
     for (const i of data) {
@@ -177,13 +178,7 @@ describe('helper method', () => {
                 const bar = 'bar:upsertOneById';
                 const baz = 'baz:upsertOneById';
                 const data = Symbol('data:upsertOneById');
-                const response = {
-                    result: {
-                        ok: 1,
-                        no: 1,
-                    },
-                    ops: [data],
-                };
+                const response = objOf('value', data);
                 const payload = { id, foo, bar, baz };
                 const expectedProps = withSetProps(payload);
                 beforeAll(async() => {
