@@ -141,18 +141,21 @@ describe('helper method', () => {
             const payload = { id, foo, bar, baz };
             const expectedProps = withSetProps(payload);
             beforeAll(async() => {
-                MockCollection.updateOne.mockResolvedValueOnce(response);
+                MockCollection.findOneAndUpdate.mockResolvedValueOnce(response);
                 result = await collection.updateOneById(payload);
             });
-            test('calls mongo.updateOne with expected payload', () => {
-                expect(MockCollection.updateOne).toHaveBeenCalledWith({ id }, expectedProps);
+            test('calls mongo.findOneAndUpdate with expected payload', () => {
+                const expectedOptions = {
+                    returnOriginal: false,
+                };
+                expect(MockCollection.findOneAndUpdate).toHaveBeenCalledWith({ id }, expectedProps, expectedOptions);
             });
-            test('returns data result of calling mongo.updateOne', () => {
+            test('returns data result of calling mongo.findOneAndUpdate', () => {
                 expect(result).toBe(data);
             });
             test('bubbles errors', async() => {
                 const error = new Error('err:updateOneById');
-                MockCollection.updateOne.mockRejectedValueOnce(error);
+                MockCollection.findOneAndUpdate.mockRejectedValueOnce(error);
                 expect.assertions(1);
                 try {
                     await collection.updateOneById(payload);
@@ -185,21 +188,24 @@ describe('helper method', () => {
                 const expectedProps = withSetProps(payload);
                 beforeAll(async() => {
                     MockCollection.insertOne.mockClear();
-                    MockCollection.updateOne.mockResolvedValueOnce(response);
+                    MockCollection.findOneAndUpdate.mockResolvedValueOnce(response);
                     result = await collection.upsertOneById(payload);
                 });
-                test('calls mongo.updateOne with expected payload', () => {
-                    expect(MockCollection.updateOne).toHaveBeenCalledWith({ id }, expectedProps);
+                test('calls mongo.findOneAndUpdate with expected payload', () => {
+                    const expectedOptions = {
+                        returnOriginal: false,
+                    };
+                    expect(MockCollection.findOneAndUpdate).toHaveBeenCalledWith({ id }, expectedProps, expectedOptions);
                 });
                 test('does not call mongo.insertOne', () => {
                     expect(MockCollection.insertOne).not.toHaveBeenCalled();
                 });
-                test('returns data result of calling mongo.updateOne', () => {
+                test('returns data result of calling mongo.findOneAndUpdate', () => {
                     expect(result).toBe(data);
                 });
                 test('bubbles errors', async() => {
                     const error = new Error('err:upsertOneById');
-                    MockCollection.updateOne.mockRejectedValueOnce(error);
+                    MockCollection.findOneAndUpdate.mockRejectedValueOnce(error);
                     expect.assertions(1);
                     try {
                         await collection.upsertOneById(payload);
@@ -233,13 +239,16 @@ describe('helper method', () => {
                 const expectedUpdateProps = withSetProps(payload);
                 beforeAll(async() => {
                     MockCollection.insertOne.mockClear();
-                    MockCollection.updateOne.mockClear();
+                    MockCollection.findOneAndUpdate.mockClear();
                     MockCollection.insertOne.mockResolvedValueOnce(insertOneResponse);
-                    MockCollection.updateOne.mockResolvedValueOnce(updateOneResponse);
+                    MockCollection.findOneAndUpdate.mockResolvedValueOnce(updateOneResponse);
                     result = await collection.upsertOneById(payload);
                 });
-                test('calls mongo.updateOne with expected payload', () => {
-                    expect(MockCollection.updateOne).toHaveBeenCalledWith({ id }, expectedUpdateProps);
+                test('calls mongo.findOneAndUpdate with expected payload', () => {
+                    const expectedOptions = {
+                        returnOriginal: false,
+                    };
+                    expect(MockCollection.findOneAndUpdate).toHaveBeenCalledWith({ id }, expectedUpdateProps, expectedOptions);
                 });
                 test('calls mongo.insertOne with expected payload', () => {
                     expect(MockCollection.insertOne).toHaveBeenCalledWith(payload);
@@ -249,7 +258,7 @@ describe('helper method', () => {
                 });
                 test('bubbles errors', async() => {
                     const error = new Error('err:upsertOneById');
-                    MockCollection.updateOne.mockResolvedValueOnce(updateOneResponse);
+                    MockCollection.findOneAndUpdate.mockResolvedValueOnce(updateOneResponse);
                     MockCollection.insertOne.mockRejectedValueOnce(error);
                     expect.assertions(1);
                     try {

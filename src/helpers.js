@@ -1,7 +1,7 @@
 /* eslint-disable padded-blocks */
 
 import {
-    compose,
+    always,
     converge,
     curry,
     flatten,
@@ -33,7 +33,7 @@ const withoutId = omit(['id']);
 const withSet = objOf('$set');
 const toArray = Array.from;
 
-export const withSetProps = compose(withSet, withoutId);
+export const withSetProps = pipe(withoutId, flattenChildren, withSet);
 
 /**
  * Call primary async handler and return
@@ -52,6 +52,8 @@ const eitherAsync = curry(
         }
 );
 
+const returnOriginal = false;
+
 /**
  * Add helper methods to collection object
  * @param {Object} collection Mongo collection object
@@ -62,12 +64,12 @@ const withHelperMethods = collection => {
     /**
      * Extract native methods
      */
-    const { find, findOne, updateOne, insertOne, remove } = collection;
+    const { find, findOne, findOneAndUpdate, insertOne, remove } = collection;
 
     /**
      * Local helpers
      */
-    const updatePropsWithId = converge(updateOne, [withId, withSetProps]);
+    const updatePropsWithId = converge(findOneAndUpdate, [withId, withSetProps, always({ returnOriginal })]);
 
     /**
      * Exported helper methods
