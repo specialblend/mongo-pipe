@@ -133,11 +133,7 @@ describe('helper method', () => {
             const baz = 'baz:updateOneById';
             const data = Symbol('data:updateOneById');
             const response = {
-                result: {
-                    ok: 1,
-                    no: 1,
-                },
-                ops: [data],
+                value: data,
             };
             const payload = { id, foo, bar, baz };
             const expectedProps = withSetProps(payload);
