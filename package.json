@@ -1,7 +1,7 @@
 {
   "main": "dist/mongo.cjs.js",
   "module": "dist/mongo.esm.js",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage",
