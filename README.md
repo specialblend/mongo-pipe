@@ -8,7 +8,7 @@ fluent/functional utility and wrapper around [mongodb](https://github.com/mongod
 
 ## usage
 
-```ecmascript 6
+```javascript
 import mongo from '@specialblend/mongo-pipe'
 
 const host = 'mongodb.example.com'
@@ -58,13 +58,13 @@ This package exports two Jest mocks for your convenience.
 
 #### mongodb
 
-```ecmascript 6
+```javascript
 // __mocks__/mongodb.js
 
 export * from '@specialblend/mongo-pipe/mock/mongodb';
 ```
 
-```ecmascript 6
+```javascript
 // __mocks__/mongodb.test.js
 
 import { MongoClient, MockCollection, MockConnection, MockDatabase } from 'mongodb';
@@ -89,13 +89,13 @@ test('foo', async() => {
 
 #### mongo-pipe
 
-```ecmascript 6
+```javascript
 // __mocks__/@specialblend/mongo-pipe.js
 
-export * from '@specialblend/mongo-pipe/mock/mongo-pipe';
+module.exports = require('@specialblend/mongo-pipe/mock/mongo-pipe');
 ```
 
-```ecmascript 6
+```javascript
 // __mocks__/@specialblend/mongo-pipe.test.js
 
 import mongo, { MockCollection, MockHandler } from '@specialblend/mongo-pipe';
