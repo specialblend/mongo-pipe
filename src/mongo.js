@@ -27,12 +27,16 @@ const makeCollection = memoizeWith(
     (connection, dbName, collectionName) => [
         connection, dbName, collectionName,
     ],
-    (connection, dbName, collectionName) =>
-        setupCollection(
+    (connection, dbName, collectionName) => {
+        const db = connection.db(dbName);
+        const collection = db.collection(collectionName);
+        return setupCollection(
             connection
                 .db(dbName)
                 .collection(collectionName),
-        ),
+        )
+    }
+
 );
 
 /**

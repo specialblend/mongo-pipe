@@ -54,12 +54,7 @@ const eitherAsync = curry(
 
 const returnOriginal = false;
 
-/**
- * Add helper methods to collection object
- * @param {Object} collection Mongo collection object
- * @returns {object} collection with helper methods
- */
-const withHelperMethods = collection => {
+const withStandardHelperMethods = collection => {
 
     /**
      * Extract native methods
@@ -81,8 +76,6 @@ const withHelperMethods = collection => {
     const updateOneById = pipe(updatePropsWithId, then(prop('value')));
     const upsertOneById = eitherAsync(isNotEmptyOrNil, updateOneById, createOne);
 
-    const pipeTransformers = unapply(pipeSpecs(collection));
-
     return Object.assign(collection, {
         all,
         createOne,
@@ -90,7 +83,31 @@ const withHelperMethods = collection => {
         updateOneById,
         upsertOneById,
         removeOneById,
-        pipe: pipeTransformers,
+    });
+};
+
+const withRelations = collection => {
+
+    const belongsTo = curry((db, target, foreignKey, targetKey) => {
+        const targetCollection = db.collection(target)
+    }
+
+};
+
+const withPipe = collection => ({
+    pipe: unapply(pipeSpecs(collection)),
+});
+
+/**
+ * Add helper methods to collection object
+ * @param {Object} collection Mongo collection object
+ * @returns {object} collection with helper methods
+ */
+const withHelperMethods = collection => {
+
+    return Object.assign(collection, {
+        ... withStandardHelperMethods(collection),
+        ...withPipe(collection),
     });
 };
 
