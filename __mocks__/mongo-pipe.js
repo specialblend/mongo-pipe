@@ -50,21 +50,7 @@ const nativeSpecMethods = [
     'watch',
 ];
 
-const helperMethods = [
-    'all',
-    'createOne',
-    'findOneById',
-    'updateOneById',
-    'upsertOneById',
-    'removeOneById',
-];
-
-const mockedMethods = [
-    ...nativeSpecMethods,
-    ...helperMethods,
-];
-
-export const MockCollection = zipObj(mockedMethods, times(() => jest.fn(), length(mockedMethods)));
+export const MockCollection = zipObj(nativeSpecMethods, times(() => jest.fn(), length(nativeSpecMethods)));
 
 export const MockHandler = jest.fn(curryN(2, always(MockCollection)));
 

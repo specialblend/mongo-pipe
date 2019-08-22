@@ -77,13 +77,6 @@ describe('mongo', () => {
                                     });
                                 });
                             });
-                            test('with helper methods', () => {
-                                expect(collection).toHaveProperty('findOneById', expect.any(Function));
-                                expect(collection).toHaveProperty('updateOneById', expect.any(Function));
-                                expect(collection).toHaveProperty('createOne', expect.any(Function));
-                                expect(collection).toHaveProperty('upsertOneById', expect.any(Function));
-                                expect(collection).toHaveProperty('removeOneById', expect.any(Function));
-                            });
                         });
                     });
                 });
